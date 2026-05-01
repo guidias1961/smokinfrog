@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>$SFROG — Smokin Frog by Matt Furie | The Original Stoner Frog</title>
+<meta name="description" content="$SFROG — Smokin Frog by Matt Furie. The original 2008 stoner frog from the Boy's Club universe. Pepe's smoking cousin. Now on chain.">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Permanent+Marker&display=swap');
+
+  :root {
+    --frog-green: #4caf3f;
+    --frog-dark: #1b5e20;
+    --frog-lime: #8bc34a;
+    --frog-yellow: #fff176;
+    --weed-pink: #e91e63;
+    --weed-red: #d32f2f;
+    --smoke: #e0e0e0;
+    --bg-deep: #0a2e0a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
+    background:
+      radial-gradient(ellipse at top, #2e7d32 0%, #1b5e20 40%, #0a2e0a 100%);
+    color: #fff;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+
+  /* smoke clouds drifting in bg */
+  .smoke-bg {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .smoke-bg span {
+    position: absolute;
+    bottom: -200px;
+    width: 300px;
+    height: 300px;
+    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    border-radius: 50%;
+    animation: drift linear infinite;
+  }
+  .smoke-bg span:nth-child(1) { left: 5%;  animation-duration: 22s; animation-delay: 0s; }
+  .smoke-bg span:nth-child(2) { left: 25%; animation-duration: 28s; animation-delay: -8s; }
+  .smoke-bg span:nth-child(3) { left: 50%; animation-duration: 25s; animation-delay: -15s; }
+  .smoke-bg span:nth-child(4) { left: 70%; animation-duration: 30s; animation-delay: -4s; }
+  .smoke-bg span:nth-child(5) { left: 88%; animation-duration: 24s; animation-delay: -12s; }
+
+  @keyframes drift {
+    0%   { transform: translateY(0) scale(0.5); opacity: 0; }
+    20%  { opacity: 1; }
+    80%  { opacity: 1; }
+    100% { transform: translateY(-120vh) scale(1.6); opacity: 0; }
+  }
+
+  /* nav */
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    background: rgba(10, 46, 10, 0.85);
+    backdrop-filter: blur(8px);
+    border-bottom: 3px solid var(--frog-green);
+    padding: 0.8rem 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  nav .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'Bangers', cursive;
+    font-size: 1.6rem;
+    color: var(--frog-yellow);
+    letter-spacing: 2px;
+    text-shadow: 2px 2px 0 var(--frog-dark);
+  }
+  nav .brand img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid var(--frog-green);
+  }
+  nav ul {
+    display: flex;
+    gap: 1.5rem;
+    list-style: none;
+  }
+  nav a {
+    color: #fff;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  nav a:hover {
+    color: var(--frog-yellow);
+    transform: rotate(-3deg) scale(1.1);
+    text-shadow: 0 0 10px var(--frog-lime);
+  }
+  nav .buy-now {
+    background: var(--weed-pink);
+    color: #fff;
+    padding: 0.5rem 1.2rem;
+    border-radius: 50px;
+    border: 3px solid var(--frog-yellow);
+    font-family: 'Bangers', cursive;
+    letter-spacing: 2px;
+    box-shadow: 4px 4px 0 var(--frog-dark);
+    transition: all 0.15s;
+  }
+  nav .buy-now:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 var(--frog-dark);
+    color: var(--frog-yellow);
+  }
+
+  @media (max-width: 768px) {
+    nav { padding: 0.6rem 1rem; }
+    nav ul { display: none; }
+  }
+
+  /* hero */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 6rem 1.5rem 3rem;
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-logo {
+    width: clamp(200px, 35vw, 380px);
+    height: auto;
+    border-radius: 50%;
+    box-shadow:
+      0 0 0 6px var(--frog-yellow),
+      0 0 40px rgba(255, 241, 118, 0.6),
+      0 0 80px rgba(76, 175, 63, 0.4);
+    animation: bob 3s ease-in-out infinite, glow-pulse 2.5s ease-in-out infinite;
+    margin-bottom: 1.5rem;
+    cursor: pointer;
+  }
+
+  @keyframes bob {
+    0%, 100% { transform: translateY(0) rotate(-2deg); }
+    50% { transform: translateY(-15px) rotate(2deg); }
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 0 6px var(--frog-yellow), 0 0 40px rgba(255, 241, 118, 0.6), 0 0 80px rgba(76, 175, 63, 0.4); }
+    50% { box-shadow: 0 0 0 6px var(--frog-yellow), 0 0 60px rgba(255, 241, 118, 0.9), 0 0 120px rgba(233, 30, 99, 0.5); }
+  }
+
+  .hero h1 {
+    font-family: 'Bangers', cursive;
+    font-size: clamp(3.5rem, 12vw, 9rem);
+    line-height: 0.9;
+    letter-spacing: 4px;
+    color: var(--frog-yellow);
+    text-shadow:
+      4px 4px 0 var(--weed-pink),
+      8px 8px 0 var(--frog-dark),
+      12px 12px 30px rgba(0,0,0,0.5);
+    margin-bottom: 0.5rem;
+    transform: rotate(-2deg);
+  }
+
+  .hero h1 .dollar {
+    color: var(--frog-lime);
+    display: inline-block;
+    animation: wiggle 2s ease-in-out infinite;
+  }
+
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-8deg) scale(1.1); }
+    75% { transform: rotate(8deg) scale(1.1); }
+  }
+
+  .hero .subtitle {
+    font-family: 'Permanent Marker', cursive;
+    font-size: clamp(1.2rem, 3vw, 2rem);
+    color: #fff;
+    margin-bottom: 0.5rem;
+    text-shadow: 2px 2px 0 var(--frog-dark);
+  }
+
+  .hero .by {
+    font-family: 'Permanent Marker', cursive;
+    font-size: clamp(1rem, 2vw, 1.4rem);
+    color: var(--frog-yellow);
+    margin-bottom: 2rem;
+    transform: rotate(-1deg);
+  }
+
+  .hero .tagline {
+    max-width: 700px;
+    font-size: clamp(1rem, 2vw, 1.3rem);
+    line-height: 1.5;
+    margin-bottom: 2.5rem;
+    background: rgba(0,0,0,0.4);
+    padding: 1rem 1.5rem;
+    border: 3px dashed var(--frog-yellow);
+    border-radius: 20px;
+    transform: rotate(0.5deg);
+  }
+
+  .hero-buttons {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .btn {
+    font-family: 'Bangers', cursive;
+    font-size: 1.4rem;
+    letter-spacing: 3px;
+    padding: 1rem 2rem;
+    border: 4px solid #000;
+    border-radius: 60px;
+    text-decoration: none;
+    color: #000;
+    background: var(--frog-yellow);
+    box-shadow: 6px 6px 0 #000;
+    transition: all 0.15s;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .btn:hover {
+    transform: translate(-3px, -3px) rotate(-2deg);
+    box-shadow: 9px 9px 0 #000;
+  }
+  .btn:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0 0 0 #000;
+  }
+  .btn.btn-pink { background: var(--weed-pink); color: #fff; }
+  .btn.btn-green { background: var(--frog-green); color: #fff; }
+  .btn.btn-tg { background: #229ED9; color: #fff; }
+
+  /* ticker */
+  .ticker {
+    background: var(--frog-yellow);
+    color: #000;
+    padding: 0.7rem 0;
+    overflow: hidden;
+    border-top: 4px solid #000;
+    border-bottom: 4px solid #000;
+    position: relative;
+    z-index: 2;
+  }
+  .ticker-track {
+    display: flex;
+    white-space: nowrap;
+    animation: scroll 30s linear infinite;
+    font-family: 'Bangers', cursive;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+  }
+  .ticker-track span { display: inline-flex; align-items: center; padding: 0 1.5rem; }
+  .ticker-track .dot {
+    color: var(--weed-pink);
+    font-size: 2rem;
+    padding: 0 0.5rem;
+  }
+  @keyframes scroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* sections */
+  section {
+    position: relative;
+    z-index: 2;
+    padding: 5rem 1.5rem;
+  }
+
+  .section-title {
+    font-family: 'Bangers', cursive;
+    font-size: clamp(2.5rem, 8vw, 5rem);
+    text-align: center;
+    color: var(--frog-yellow);
+    letter-spacing: 4px;
+    margin-bottom: 3rem;
+    text-shadow: 4px 4px 0 var(--weed-pink), 8px 8px 0 var(--frog-dark);
+    transform: rotate(-1.5deg);
+  }
+
+  /* about */
+  .about-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    align-items: center;
+  }
+  @media (max-width: 768px) { .about-wrap { grid-template-columns: 1fr; } }
+
+  .about-image {
+    background: rgba(255,255,255,0.05);
+    border: 4px solid var(--frog-yellow);
+    border-radius: 24px;
+    padding: 1.5rem;
+    transform: rotate(-2deg);
+    box-shadow: 10px 10px 0 var(--frog-dark);
+  }
+  .about-image img { width: 100%; height: auto; border-radius: 16px; display: block; }
+  .about-image p {
+    text-align: center;
+    margin-top: 0.8rem;
+    font-family: 'Permanent Marker', cursive;
+    font-size: 1rem;
+    color: var(--frog-yellow);
+  }
+
+  .about-text h3 {
+    font-family: 'Bangers', cursive;
+    font-size: 2.5rem;
+    color: var(--frog-lime);
+    letter-spacing: 2px;
+    margin-bottom: 1rem;
+    line-height: 1.1;
+  }
+  .about-text p {
+    font-size: 1.15rem;
+    line-height: 1.7;
+    margin-bottom: 1rem;
+  }
+  .about-text strong { color: var(--frog-yellow); }
+  .about-text em { color: var(--weed-pink); font-style: normal; font-weight: 700; }
+
+  /* lore quote */
+  .lore-quote {
+    max-width: 900px;
+    margin: 3rem auto 0;
+    font-family: 'Permanent Marker', cursive;
+    font-size: clamp(1.3rem, 3vw, 2rem);
+    text-align: center;
+    color: var(--frog-yellow);
+    line-height: 1.4;
+    padding: 2rem;
+    background: rgba(0,0,0,0.4);
+    border: 3px dashed var(--weed-pink);
+    border-radius: 20px;
+    transform: rotate(0.8deg);
+  }
+  .lore-quote::before { content: "\201C "; color: var(--weed-pink); font-size: 2em; vertical-align: -0.4em; }
+  .lore-quote::after  { content: " \201D"; color: var(--weed-pink); font-size: 2em; vertical-align: -0.4em; }
+
+  /* tokenomics */
+  .tokenomics-grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+  }
+  .tok-card {
+    background: linear-gradient(145deg, var(--frog-green), var(--frog-dark));
+    border: 4px solid var(--frog-yellow);
+    border-radius: 24px;
+    padding: 2rem 1.5rem;
+    text-align: center;
+    box-shadow: 6px 6px 0 #000;
+    transition: all 0.2s;
+  }
+  .tok-card:hover {
+    transform: translate(-3px, -3px) rotate(-1.5deg);
+    box-shadow: 9px 9px 0 #000;
+  }
+  .tok-card h4 {
+    font-family: 'Bangers', cursive;
+    font-size: 2.4rem;
+    color: var(--frog-yellow);
+    letter-spacing: 2px;
+    line-height: 1;
+    margin-bottom: 0.5rem;
+  }
+  .tok-card p {
+    font-family: 'Permanent Marker', cursive;
+    font-size: 1.1rem;
+    color: #fff;
+  }
+
+  /* contract */
+  .contract-box {
+    max-width: 900px;
+    margin: 2.5rem auto 0;
+    background: #000;
+    border: 4px dashed var(--frog-lime);
+    border-radius: 20px;
+    padding: 1.5rem;
+    text-align: center;
+  }
+  .contract-box .label {
+    font-family: 'Bangers', cursive;
+    font-size: 1.4rem;
+    color: var(--frog-yellow);
+    letter-spacing: 2px;
+    margin-bottom: 0.6rem;
+  }
+  .contract-box .ca {
+    font-family: 'Courier New', monospace;
+    font-size: clamp(0.75rem, 1.8vw, 1rem);
+    color: var(--frog-lime);
+    word-break: break-all;
+    background: rgba(76, 175, 63, 0.1);
+    padding: 0.8rem;
+    border-radius: 10px;
+    border: 1px solid var(--frog-green);
+    margin-bottom: 1rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .contract-box .ca:hover { background: rgba(76, 175, 63, 0.25); }
+  .contract-box .copy-hint {
+    font-size: 0.9rem;
+    color: var(--smoke);
+    font-style: italic;
+  }
+
+  /* timeline */
+  .timeline-wrap {
+    max-width: 1100px;
+    margin: 0 auto;
+    background: rgba(0,0,0,0.3);
+    border: 4px solid var(--frog-yellow);
+    border-radius: 30px;
+    padding: 3rem 1rem;
+    box-shadow: 0 0 60px rgba(76,175,63,0.4) inset;
+  }
+  .timeline-img-wrap {
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+  .timeline-img-wrap img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 20px;
+    box-shadow: 6px 6px 0 var(--frog-dark);
+  }
+  .timeline-caption {
+    text-align: center;
+    font-family: 'Permanent Marker', cursive;
+    font-size: 1.2rem;
+    color: var(--frog-yellow);
+    margin-top: 1rem;
+    line-height: 1.5;
+  }
+  .timeline-caption strong { color: var(--weed-pink); }
+
+  /* roadmap */
+  .roadmap {
+    max-width: 1000px;
+    margin: 0 auto;
+    display: grid;
+    gap: 1.5rem;
+  }
+  .phase {
+    background: rgba(0,0,0,0.45);
+    border: 4px solid var(--frog-green);
+    border-radius: 20px;
+    padding: 1.8rem 2rem;
+    position: relative;
+    transition: all 0.2s;
+  }
+  .phase:hover {
+    border-color: var(--frog-yellow);
+    transform: translateX(8px);
+  }
+  .phase:nth-child(odd) { transform: rotate(-0.5deg); }
+  .phase:nth-child(even) { transform: rotate(0.5deg); }
+  .phase:nth-child(odd):hover, .phase:nth-child(even):hover { transform: translateX(8px); }
+  .phase h4 {
+    font-family: 'Bangers', cursive;
+    font-size: 2rem;
+    color: var(--frog-yellow);
+    letter-spacing: 2px;
+    margin-bottom: 0.5rem;
+  }
+  .phase ul {
+    list-style: none;
+    padding: 0;
+  }
+  .phase li {
+    padding: 0.4rem 0 0.4rem 1.8rem;
+    position: relative;
+    font-size: 1.05rem;
+  }
+  .phase li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 1rem;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--frog-lime);
+  }
+  .phase li.done {
+    text-decoration: line-through;
+    opacity: 0.55;
+  }
+  .phase li.done::before {
+    background: var(--frog-yellow);
+  }
+
+  /* how to buy */
+  .buy-grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+  .buy-step {
+    background: linear-gradient(145deg, rgba(233,30,99,0.2), rgba(0,0,0,0.6));
+    border: 4px solid var(--weed-pink);
+    border-radius: 24px;
+    padding: 2rem 1.5rem;
+    position: relative;
+    transition: all 0.2s;
+  }
+  .buy-step:hover { transform: translateY(-6px) rotate(-1deg); }
+  .buy-step .num {
+    position: absolute;
+    top: -25px;
+    left: 20px;
+    width: 56px;
+    height: 56px;
+    background: var(--frog-yellow);
+    color: #000;
+    border: 4px solid #000;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bangers', cursive;
+    font-size: 2rem;
+    box-shadow: 4px 4px 0 #000;
+  }
+  .buy-step h4 {
+    font-family: 'Bangers', cursive;
+    font-size: 1.8rem;
+    color: var(--frog-yellow);
+    letter-spacing: 2px;
+    margin-top: 1rem;
+    margin-bottom: 0.6rem;
+  }
+  .buy-step p { font-size: 1rem; line-height: 1.5; }
+
+  /* meme gallery */
+  .meme-gallery {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem;
+  }
+  .meme-card {
+    aspect-ratio: 1 / 1;
+    background: var(--frog-dark);
+    border: 4px solid var(--frog-yellow);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 6px 6px 0 #000;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+  .meme-card:nth-child(odd) { transform: rotate(-2deg); }
+  .meme-card:nth-child(even) { transform: rotate(2deg); }
+  .meme-card:hover { transform: rotate(0) scale(1.05); z-index: 5; }
+  .meme-card .text {
+    font-family: 'Bangers', cursive;
+    font-size: 1.8rem;
+    color: var(--frog-yellow);
+    letter-spacing: 2px;
+    line-height: 1.05;
+    margin-bottom: 0.4rem;
+  }
+  .meme-card .sub {
+    font-family: 'Permanent Marker', cursive;
+    font-size: 1rem;
+    color: #fff;
+  }
+
+  /* faq */
+  .faq-wrap {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  .faq-item {
+    background: rgba(0,0,0,0.4);
+    border: 3px solid var(--frog-green);
+    border-radius: 16px;
+    margin-bottom: 1rem;
+    overflow: hidden;
+    transition: all 0.2s;
+  }
+  .faq-item:hover { border-color: var(--frog-yellow); }
+  .faq-q {
+    width: 100%;
+    background: none;
+    border: none;
+    color: #fff;
+    text-align: left;
+    padding: 1.2rem 1.5rem;
+    font-family: 'Bangers', cursive;
+    font-size: 1.4rem;
+    letter-spacing: 1.5px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .faq-q:hover { color: var(--frog-yellow); }
+  .faq-q .arrow {
+    font-size: 1.2rem;
+    transition: transform 0.2s;
+    color: var(--frog-yellow);
+  }
+  .faq-item.open .arrow { transform: rotate(180deg); }
+  .faq-a {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    padding: 0 1.5rem;
+  }
+  .faq-item.open .faq-a {
+    max-height: 400px;
+    padding: 0 1.5rem 1.2rem;
+  }
+  .faq-a p { line-height: 1.6; font-size: 1rem; }
+
+  /* cta final */
+  .final-cta {
+    text-align: center;
+    padding: 6rem 1.5rem;
+  }
+  .final-cta h2 {
+    font-family: 'Bangers', cursive;
+    font-size: clamp(3rem, 10vw, 7rem);
+    color: var(--frog-yellow);
+    letter-spacing: 4px;
+    line-height: 0.9;
+    text-shadow: 5px 5px 0 var(--weed-pink), 10px 10px 0 var(--frog-dark);
+    margin-bottom: 2rem;
+    transform: rotate(-2deg);
+  }
+  .final-cta p {
+    font-size: 1.4rem;
+    margin-bottom: 2.5rem;
+    font-family: 'Permanent Marker', cursive;
+  }
+
+  /* footer */
+  footer {
+    background: #000;
+    border-top: 6px solid var(--frog-yellow);
+    padding: 3rem 1.5rem 1.5rem;
+    text-align: center;
+    position: relative;
+    z-index: 2;
+  }
+  footer img {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    border: 3px solid var(--frog-green);
+    margin-bottom: 1rem;
+  }
+  footer .socials {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin: 1.5rem 0;
+  }
+  footer .socials a {
+    padding: 0.6rem 1.4rem;
+    border-radius: 50px;
+    background: var(--frog-green);
+    color: #fff;
+    text-decoration: none;
+    font-family: 'Bangers', cursive;
+    letter-spacing: 2px;
+    font-size: 1.1rem;
+    border: 3px solid var(--frog-yellow);
+    transition: all 0.2s;
+  }
+  footer .socials a:hover {
+    background: var(--frog-yellow);
+    color: #000;
+    transform: rotate(-3deg) scale(1.05);
+  }
+  footer .disclaimer {
+    max-width: 700px;
+    margin: 1.5rem auto 0;
+    font-size: 0.85rem;
+    line-height: 1.5;
+    color: var(--smoke);
+    opacity: 0.8;
+  }
+  footer .copyright {
+    margin-top: 1.5rem;
+    font-family: 'Permanent Marker', cursive;
+    color: var(--frog-yellow);
+    font-size: 1.1rem;
+  }
+
+  /* easter: clicking logo blows smoke */
+  .smoke-puff {
+    position: fixed;
+    pointer-events: none;
+    width: 80px; height: 80px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, transparent 70%);
+    animation: puff 1.2s ease-out forwards;
+    z-index: 50;
+  }
+  @keyframes puff {
+    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+    100% { transform: translate(-50%, -150%) scale(2.5); opacity: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="smoke-bg">
+  <span></span><span></span><span></span><span></span><span></span>
+</div>
+
+<nav>
+  <div class="brand">
+    <img src="logo.png" alt="$SFROG">
+    <span>$SFROG</span>
+  </div>
+  <ul>
+    <li><a href="#about">About</a></li>
+    <li><a href="#timeline">Lore</a></li>
+    <li><a href="#tokenomics">Tokenomics</a></li>
+    <li><a href="#buy">How to Buy</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <a href="#buy" class="buy-now">Buy $SFROG</a>
+</nav>
+
+<header class="hero">
+  <img id="heroLogo" class="hero-logo" src="logo.png" alt="Smokin Frog Logo">
+  <h1><span class="dollar">$</span>SFROG</h1>
+  <p class="subtitle">SMOKIN FROG</p>
+  <p class="by">by Matt Furie &middot; est. 2008</p>
+  <p class="tagline">
+    pepe's older, blazed cousin from <em>boy's club</em>
+    finally hopped on chain. red eyes. rolled tight. chill vibes only.
+  </p>
+  <div class="hero-buttons">
+    <a href="#buy" class="btn btn-pink">BUY NOW</a>
+    <a href="#" class="btn btn-green">CHART</a>
+    <a href="#" class="btn btn-tg">TELEGRAM</a>
+  </div>
+</header>
+
+<div class="ticker">
+  <div class="ticker-track">
+    <span>$SFROG</span><span class="dot">&bull;</span>
+    <span>SMOKIN SINCE 2008</span><span class="dot">&bull;</span>
+    <span>BY MATT FURIE</span><span class="dot">&bull;</span>
+    <span>0 / 0 TAX</span><span class="dot">&bull;</span>
+    <span>LP BURNED</span><span class="dot">&bull;</span>
+    <span>RED EYES ONLY</span><span class="dot">&bull;</span>
+    <span>PEPE'S BLAZED COUSIN</span><span class="dot">&bull;</span>
+    <span>DIAMOND HANDS</span><span class="dot">&bull;</span>
+    <span>$SFROG</span><span class="dot">&bull;</span>
+    <span>SMOKIN SINCE 2008</span><span class="dot">&bull;</span>
+    <span>BY MATT FURIE</span><span class="dot">&bull;</span>
+    <span>0 / 0 TAX</span><span class="dot">&bull;</span>
+    <span>LP BURNED</span><span class="dot">&bull;</span>
+    <span>RED EYES ONLY</span><span class="dot">&bull;</span>
+    <span>PEPE'S BLAZED COUSIN</span><span class="dot">&bull;</span>
+    <span>DIAMOND HANDS</span><span class="dot">&bull;</span>
+  </div>
+</div>
+
+<section id="about">
+  <h2 class="section-title">WHO IS SMOKIN FROG?</h2>
+  <div class="about-wrap">
+    <div class="about-image">
+      <img src="logo.png" alt="Smokin Frog">
+      <p>red eyes. rolled tight. legend status.</p>
+    </div>
+    <div class="about-text">
+      <h3>the original. the blazed one. the one they forgot.</h3>
+      <p>
+        in <strong>2008</strong>, before pepe became a meme empire,
+        matt furie drew a different frog. a cooler frog.
+        a frog with <em>two red eyes</em>, a fat joint, and zero anxiety.
+      </p>
+      <p>
+        his name was <strong>SMOKIN FROG</strong>. and for 17 years he sat in the
+        shadow of his viral cousin pepe. watching $PEPE moon.
+        watching $WOJAK pump. watching every furie character get tokenized except him.
+      </p>
+      <p>
+        well. <em>he's awake now.</em>
+      </p>
+      <p>
+        $SFROG isn't another generic frog cash grab. this is <strong>canon</strong>.
+        same artist. same universe. same boy's club lineage as pepe, fefe and hoppy.
+        just stonier.
+      </p>
+    </div>
+  </div>
+
+  <p class="lore-quote">
+    pepe felt good man. smokin frog felt <em style="font-style:italic;color:var(--weed-pink)">better</em>, man.
+  </p>
+</section>
+
+<section id="timeline">
+  <h2 class="section-title">THE FROG TIMELINE</h2>
+  <div class="timeline-wrap">
+    <div class="timeline-img-wrap">
+      <img src="1.png" alt="Frog Timeline by Matt Furie">
+    </div>
+    <p class="timeline-caption">
+      from matt furie's own hand. <strong>2004 hoppy</strong> &middot; <strong>2005 pepe</strong> &middot;
+      <strong style="color:var(--frog-yellow)">2008 smokin frog</strong> &middot; <strong>2020 fefe</strong>.
+      <br>this isn't fan art. this is canon. and now it's onchain.
+    </p>
+  </div>
+</section>
+
+<section id="tokenomics">
+  <h2 class="section-title">TOKENOMICS</h2>
+  <div class="tokenomics-grid">
+    <div class="tok-card">
+      <h4>420.69B</h4>
+      <p>total supply</p>
+    </div>
+    <div class="tok-card">
+      <h4>0 / 0</h4>
+      <p>buy / sell tax</p>
+    </div>
+    <div class="tok-card">
+      <h4>100%</h4>
+      <p>liquidity burned</p>
+    </div>
+    <div class="tok-card">
+      <h4>RENOUNCED</h4>
+      <p>contract ownership</p>
+    </div>
+    <div class="tok-card">
+      <h4>FAIR</h4>
+      <p>no presale. no team allocation.</p>
+    </div>
+    <div class="tok-card">
+      <h4>100%</h4>
+      <p>community owned</p>
+    </div>
+  </div>
+
+  <div class="contract-box">
+    <div class="label">CONTRACT ADDRESS</div>
+    <div class="ca" id="caBox" title="click to copy">0x0000000000000000000000000000000000000000</div>
+    <div class="copy-hint">click address to copy. always verify on the official channels.</div>
+  </div>
+</section>
+
+<section id="buy">
+  <h2 class="section-title">HOW TO BUY</h2>
+  <div class="buy-grid">
+    <div class="buy-step">
+      <div class="num">1</div>
+      <h4>GET A WALLET</h4>
+      <p>download metamask or any web3 wallet. write your seed phrase on paper. yes, paper. don't be stupid.</p>
+    </div>
+    <div class="buy-step">
+      <div class="num">2</div>
+      <h4>FUND IT WITH ETH</h4>
+      <p>buy some ETH on coinbase, binance or your favorite cex. send it to your wallet. wait the 2 minutes. breathe.</p>
+    </div>
+    <div class="buy-step">
+      <div class="num">3</div>
+      <h4>HEAD TO UNISWAP</h4>
+      <p>connect your wallet to uniswap. paste the $SFROG contract address. the one above. the only real one.</p>
+    </div>
+    <div class="buy-step">
+      <div class="num">4</div>
+      <h4>SWAP &amp; SMOKE</h4>
+      <p>swap your ETH for $SFROG. set slippage to 1-2%. confirm. light up. enjoy the ride.</p>
+    </div>
+  </div>
+</section>
+
+<section id="roadmap">
+  <h2 class="section-title">ROADMAP</h2>
+  <div class="roadmap">
+    <div class="phase">
+      <h4>PHASE 1 / SPARK IT</h4>
+      <ul>
+        <li class="done">stealth launch on uniswap</li>
+        <li class="done">liquidity locked and burned</li>
+        <li class="done">contract renounced</li>
+        <li class="done">website live (you're on it)</li>
+        <li>2,000 holders</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <h4>PHASE 2 / INHALE</h4>
+      <ul>
+        <li>cmc and coingecko listings</li>
+        <li>dextools trending</li>
+        <li>10,000 holders</li>
+        <li>first cex listing</li>
+        <li>meme contest with prize pool</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <h4>PHASE 3 / EXHALE</h4>
+      <ul>
+        <li>tier 1 cex listings</li>
+        <li>$SFROG merch drop</li>
+        <li>nft collection: smokin frog originals</li>
+        <li>50,000 holders</li>
+        <li>partnerships with the broader furie-verse</li>
+      </ul>
+    </div>
+    <div class="phase">
+      <h4>PHASE 4 / STRATOSPHERE</h4>
+      <ul>
+        <li>top 100 marketcap on coingecko</li>
+        <li>billboard in times square (the meme coin tradition)</li>
+        <li>smokin frog the animated short</li>
+        <li>nothing. literally nothing. it's a memecoin.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="memes">
+  <h2 class="section-title">CERTIFIED MEMES</h2>
+  <div class="meme-gallery">
+    <div class="meme-card">
+      <div class="text">RED EYES</div>
+      <div class="sub">no fear</div>
+    </div>
+    <div class="meme-card">
+      <div class="text">ROLLED IN 2008</div>
+      <div class="sub">still burning</div>
+    </div>
+    <div class="meme-card">
+      <div class="text">PEPE'S COUSIN</div>
+      <div class="sub">cooler twin</div>
+    </div>
+    <div class="meme-card">
+      <div class="text">CANON AS F*CK</div>
+      <div class="sub">ask matt</div>
+    </div>
+    <div class="meme-card">
+      <div class="text">DIAMOND HANDS</div>
+      <div class="sub">paper hands cope</div>
+    </div>
+    <div class="meme-card">
+      <div class="text">TO THE MOON</div>
+      <div class="sub">passing pepe on the way</div>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <h2 class="section-title">FAQ</h2>
+  <div class="faq-wrap">
+    <div class="faq-item">
+      <button class="faq-q">is this a real matt furie character? <span class="arrow">&#9660;</span></button>
+      <div class="faq-a"><p>yes. smokin frog appears in matt furie's official "frog timeline" alongside hoppy (2004), pepe (2005), and fefe (2020). he debuted in 2008 within the boy's club universe. this token is a community celebration of that character.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">is $SFROG affiliated with matt furie? <span class="arrow">&#9660;</span></button>
+      <div class="faq-a"><p>$SFROG is a community memecoin inspired by the smokin frog character. like every other furie-inspired memecoin you know and love, this is a community project. no official endorsement is claimed.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">is the contract safe? <span class="arrow">&#9660;</span></button>
+      <div class="faq-a"><p>liquidity is burned. contract is renounced. zero buy/sell tax. nothing the team can rug. always verify the contract address through official channels before buying.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">why should i buy this instead of $PEPE? <span class="arrow">&#9660;</span></button>
+      <div class="faq-a"><p>you shouldn't choose. you should buy both and stop being financially rigid. but smokin frog is at marketcap zero and pepe is at billions. do the math, anon.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">will this make me rich? <span class="arrow">&#9660;</span></button>
+      <div class="faq-a"><p>no. it's a memecoin. it's gambling with frogs. only put in what you can afford to light on fire. dyor. nfa.</p></div>
+    </div>
+    <div class="faq-item">
+      <button class="faq-q">where do i find the community? <span class="arrow">&#9660;</span></button>
+      <div class="faq-a"><p>telegram and twitter/x. links in the footer. join the chat. post memes. don't ask "wen moon".</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="final-cta">
+  <h2>BLAZE IT.<br>HODL IT.<br>$SFROG.</h2>
+  <p>17 years late. infinitely cooler. red eyes forever.</p>
+  <div class="hero-buttons" style="justify-content:center;">
+    <a href="#" class="btn btn-pink">BUY ON UNISWAP</a>
+    <a href="#" class="btn btn-tg">JOIN TELEGRAM</a>
+  </div>
+</section>
+
+<footer>
+  <img src="logo.png" alt="$SFROG">
+  <div class="socials">
+    <a href="#">TWITTER</a>
+    <a href="#">TELEGRAM</a>
+    <a href="#">UNISWAP</a>
+    <a href="#">DEXTOOLS</a>
+    <a href="#">DEXSCREENER</a>
+  </div>
+  <p class="disclaimer">
+    $SFROG is a community-driven meme token with no intrinsic value or expectation of financial return.
+    this is not financial advice. cryptocurrency is highly volatile. do your own research before purchasing any token.
+    smokin frog character &copy; matt furie. this site is an unofficial community celebration.
+  </p>
+  <p class="copyright">made by the $SFROG community &middot; 2008 forever</p>
+</footer>
+
+<script>
+  // FAQ toggle
+  document.querySelectorAll('.faq-q').forEach(btn => {
+    btn.addEventListener('click', () => {
+      btn.parentElement.classList.toggle('open');
+    });
+  });
+
+  // Click hero logo for smoke puff
+  const heroLogo = document.getElementById('heroLogo');
+  heroLogo.addEventListener('click', () => {
+    const rect = heroLogo.getBoundingClientRect();
+    for (let i = 0; i < 4; i++) {
+      const puff = document.createElement('div');
+      puff.className = 'smoke-puff';
+      puff.style.left = (rect.left + rect.width/2 + (Math.random()*60 - 30)) + 'px';
+      puff.style.top  = (rect.top  + rect.height/2 + (Math.random()*40 - 20)) + 'px';
+      document.body.appendChild(puff);
+      setTimeout(() => puff.remove(), 1200);
+    }
+  });
+
+  // Copy contract address
+  const ca = document.getElementById('caBox');
+  ca.addEventListener('click', () => {
+    const text = ca.textContent.trim();
+    navigator.clipboard.writeText(text).then(() => {
+      const original = ca.textContent;
+      ca.textContent = 'COPIED';
+      ca.style.color = 'var(--frog-yellow)';
+      setTimeout(() => {
+        ca.textContent = original;
+        ca.style.color = '';
+      }, 1400);
+    }).catch(() => {});
+  });
+</script>
+</body>
+</html>
