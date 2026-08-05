@@ -995,8 +995,8 @@
   </div>
 
   <div class="venue-line">
-    <div class="big">PAD STATUS: <span class="lime" id="padStatus">DEPLOYING…</span></div>
-    <p class="cap"><a href="https://pools.trade" target="_blank" rel="noopener">pools.trade</a> — "something new" · "coming soon from uniswap". $SFROG launches there. no date promised; the pad opens when it opens. watch official comms.</p>
+    <div class="big">PAD STATUS: <span class="lime" id="padStatus">OPEN</span></div>
+    <p class="cap"><a href="https://pools.trade" target="_blank" rel="noopener">pools.trade</a> is open — "create and trade tokens on robinhood chain": a crowd-priced pre-launch window or an instant pool, straight from uniswap. $SFROG launches there. the CA drops on official comms.</p>
   </div>
 </section>
 
@@ -1045,9 +1045,9 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       <span class="t">T-3</span><span class="box">[x]</span>
       <span class="step"><b>GET ETH ONTO ROBINHOOD CHAIN.</b> chain id 4663, gas is ETH. add the network, fund the wallet, breathe.</span>
     </li>
-    <li class="pend">
-      <span class="t">T-2</span><span class="box">[ ]</span>
-      <span class="step"><b>OPEN <a href="https://pools.trade" target="_blank" rel="noopener">POOLS.TRADE</a>.</b> uniswap's new launchpad. the pad is live when it's live.</span>
+    <li>
+      <span class="t">T-2</span><span class="box">[x]</span>
+      <span class="step"><b>OPEN <a href="https://pools.trade" target="_blank" rel="noopener">POOLS.TRADE</a>.</b> uniswap's new launchpad. the pad is open.</span>
     </li>
     <li class="pend">
       <span class="t">T-1</span><span class="box">[ ]</span>
@@ -1098,7 +1098,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     <div class="freq">
       <span class="band">FREQ 03 · PAD</span>
       <a href="https://pools.trade" target="_blank" rel="noopener">pools.trade</a>
-      <span class="desc">— the launchpad. from uniswap, on robinhood chain.</span>
+      <span class="desc">— the launchpad, open. from uniswap, on robinhood chain.</span>
     </div>
 
     <p class="smallprint">
@@ -1124,7 +1124,8 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
   // ======================================================================
   const MISSION = {
     CA: null,                       // e.g. '0x1234...abcd' at T-0
-    STATUS: 'DEPLOYING…',           // 'DEPLOYING…' -> 'LIVE'
+    STATUS: 'DEPLOYING…',           // status do $SFROG: 'DEPLOYING…' -> 'LIVE'
+    PAD_STATUS: 'OPEN',             // status da pools.trade em si
     TG: 'https://t.me/smokinfrogrh',
     X: 'https://x.com/sfrogpools',
     PAD: 'https://pools.trade'
@@ -1148,7 +1149,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
   // ---- ticker ----
   const tickerLines = [
     'STATUS: ' + MISSION.STATUS,
-    'PAD: POOLS.TRADE [UNISWAP]',
+    'PAD: POOLS.TRADE [UNISWAP] · OPEN',
     'CHAIN: ROBINHOOD · ID 4663 · GAS: ETH',
     'DESTINATION: UNISWAP V4',
     'SUPPLY: TBA — SET AT LAUNCH',
@@ -1239,7 +1240,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     const field = $('caField');
     const key = $('copyKey');
     const title = $('caTitle');
-    $('padStatus').textContent = MISSION.STATUS;
+    $('padStatus').textContent = MISSION.PAD_STATUS;
     if (!MISSION.CA) return;
 
     lamp.textContent = 'CA: LIVE';
