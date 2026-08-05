@@ -2,1092 +2,1249 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>$SFROG — Smokin Frog by Matt Furie | The Original Stoner Frog</title>
-<meta name="description" content="$SFROG — Smokin Frog by Matt Furie. The original 2008 stoner frog from the Boy's Club universe. Pepe's smoking cousin. Now on chain.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>$SFROG — SMOKIN FROG IS GO · pools.trade · Robinhood Chain</title>
+<meta name="description" content="$SFROG — Smokin Frog, Matt Furie's 2008 chain-smoker from the Boy's Club universe, back on the pad. Launching on pools.trade, the new launchpad from Uniswap, on Robinhood Chain. Landing in Uniswap v4. CA drops at T-0 on official comms only.">
+<meta property="og:title" content="$SFROG — SMOKIN FROG IS GO.">
+<meta property="og:description" content="matt furie's 2008 chain-smoker, back on the pad. launching on pools.trade — the new launchpad from uniswap — on robinhood chain. landing in uniswap v4.">
+<meta property="og:image" content="https://smokinfrog-production.up.railway.app/social.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://smokinfrog-production.up.railway.app/">
+<meta property="og:type" content="website">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://smokinfrog-production.up.railway.app/social.jpg">
+<link rel="icon" type="image/png" href="favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Workbench&text=SMOKINFRG%20O.&display=block">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Libre+Barcode+128+Text&display=swap">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@400;700&family=Permanent+Marker&display=swap');
-
   :root {
-    --frog-green: #4caf3f;
-    --frog-dark: #1b5e20;
-    --frog-lime: #8bc34a;
-    --frog-yellow: #fff176;
-    --weed-pink: #e91e63;
-    --weed-red: #d32f2f;
-    --smoke: #e0e0e0;
-    --bg-deep: #0a2e0a;
+    --console: #050805;      /* console black */
+    --phos: #35F06A;         /* phosphor green */
+    --phos-dim: #1C6B3A;     /* dim phosphor — borders, bezels, decoration only */
+    --phos-text: #2FA35C;    /* dim-but-readable phosphor — secondary TEXT (AA on console) */
+    --lime: #CDF505;         /* robinhood lime */
+    --klaxon: #F03024;       /* klaxon red */
+    --amber: #FFB000;        /* caution amber */
+    --readout: #C8E6CF;      /* readout white-green */
+    --paper: #E6E8D3;        /* briefing paper under phosphor light */
+    --ink: #23241C;          /* paper ink */
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  html { scroll-behavior: smooth; }
+  html { scroll-behavior: smooth; background: var(--console); }
 
   body {
-    font-family: 'Comic Neue', 'Comic Sans MS', cursive;
-    background:
-      radial-gradient(ellipse at top, #2e7d32 0%, #1b5e20 40%, #0a2e0a 100%);
-    color: #fff;
+    font-family: 'IBM Plex Mono', 'Courier New', monospace;
+    background: var(--console);
+    color: var(--readout);
+    font-size: 15px;
+    line-height: 1.65;
     overflow-x: hidden;
-    min-height: 100vh;
   }
 
-  /* smoke clouds drifting in bg */
-  .smoke-bg {
+  ::selection { background: var(--phos); color: var(--console); }
+
+  a { color: var(--lime); text-decoration: none; }
+  a:hover { background: var(--lime); color: var(--console); }
+
+  .vt { font-family: 'VT323', monospace; }
+
+  /* ============ GLOBAL CRT PASS — one fixed composited layer ============ */
+  .crt {
     position: fixed;
     inset: 0;
     pointer-events: none;
-    z-index: 0;
-    overflow: hidden;
+    z-index: 900;
+    background:
+      radial-gradient(ellipse at center, transparent 55%, rgba(0,0,0,0.38) 100%),
+      repeating-linear-gradient(to bottom, rgba(0,0,0,0.055) 0 1px, transparent 1px 3px);
   }
-  .smoke-bg span {
+  .crt::after {
+    content: '';
     position: absolute;
-    bottom: -200px;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
-    border-radius: 50%;
-    animation: drift linear infinite;
-  }
-  .smoke-bg span:nth-child(1) { left: 5%;  animation-duration: 22s; animation-delay: 0s; }
-  .smoke-bg span:nth-child(2) { left: 25%; animation-duration: 28s; animation-delay: -8s; }
-  .smoke-bg span:nth-child(3) { left: 50%; animation-duration: 25s; animation-delay: -15s; }
-  .smoke-bg span:nth-child(4) { left: 70%; animation-duration: 30s; animation-delay: -4s; }
-  .smoke-bg span:nth-child(5) { left: 88%; animation-duration: 24s; animation-delay: -12s; }
-
-  @keyframes drift {
-    0%   { transform: translateY(0) scale(0.5); opacity: 0; }
-    20%  { opacity: 1; }
-    80%  { opacity: 1; }
-    100% { transform: translateY(-120vh) scale(1.6); opacity: 0; }
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 200px 200px;
+    opacity: 0.04;
   }
 
-  /* nav */
-  nav {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 100;
-    background: rgba(10, 46, 10, 0.85);
-    backdrop-filter: blur(8px);
-    border-bottom: 3px solid var(--frog-green);
-    padding: 0.8rem 2rem;
+  /* tracking-loss glitch: fires ~every 9s on the hero console only */
+  .console { animation: tracking 9s steps(1) infinite; }
+  @keyframes tracking {
+    0%, 96.5%, 100% { transform: skewX(0deg); text-shadow: none; }
+    97% {
+      transform: skewX(0.3deg);
+      text-shadow: -1px 0 rgba(240,48,36,0.45), 1px 0 rgba(53,240,106,0.45);
+    }
+    98.3% { transform: skewX(-0.15deg); text-shadow: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .console, .ticker-track, .lamp::before, .cursor, .cur, .rec::after { animation: none; }
+    .crt::after, .wisp { display: none; }
+  }
+
+  /* ============ TELEMETRY STRIP ============ */
+  header.strip {
+    position: sticky;
+    top: 0;
+    z-index: 800;
+    background: var(--console);
+    border-bottom: 1px solid var(--phos-dim);
+  }
+  .strip-row {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: center;
-  }
-  nav .brand {
-    display: flex;
-    align-items: center;
-    gap: 0.6rem;
-    font-family: 'Bangers', cursive;
-    font-size: 1.6rem;
-    color: var(--frog-yellow);
-    letter-spacing: 2px;
-    text-shadow: 2px 2px 0 var(--frog-dark);
-  }
-  nav .brand img {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 2px solid var(--frog-green);
-  }
-  nav ul {
-    display: flex;
-    gap: 1.5rem;
-    list-style: none;
-  }
-  nav a {
-    color: #fff;
-    text-decoration: none;
-    font-weight: 700;
-    font-size: 1rem;
-    transition: all 0.2s;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-  }
-  nav a:hover {
-    color: var(--frog-yellow);
-    transform: rotate(-3deg) scale(1.1);
-    text-shadow: 0 0 10px var(--frog-lime);
-  }
-  nav .buy-now {
-    background: var(--weed-pink);
-    color: #fff;
-    padding: 0.5rem 1.2rem;
-    border-radius: 50px;
-    border: 3px solid var(--frog-yellow);
-    font-family: 'Bangers', cursive;
-    letter-spacing: 2px;
-    box-shadow: 4px 4px 0 var(--frog-dark);
-    transition: all 0.15s;
-  }
-  nav .buy-now:hover {
-    transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0 var(--frog-dark);
-    color: var(--frog-yellow);
-  }
-
-  @media (max-width: 768px) {
-    nav { padding: 0.6rem 1rem; }
-    nav ul { display: none; }
-  }
-
-  /* hero */
-  .hero {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 6rem 1.5rem 3rem;
-    position: relative;
-    z-index: 2;
-  }
-
-  .hero-logo {
-    width: clamp(200px, 35vw, 380px);
-    height: auto;
-    border-radius: 50%;
-    box-shadow:
-      0 0 0 6px var(--frog-yellow),
-      0 0 40px rgba(255, 241, 118, 0.6),
-      0 0 80px rgba(76, 175, 63, 0.4);
-    animation: bob 3s ease-in-out infinite, glow-pulse 2.5s ease-in-out infinite;
-    margin-bottom: 1.5rem;
-    cursor: pointer;
-  }
-
-  @keyframes bob {
-    0%, 100% { transform: translateY(0) rotate(-2deg); }
-    50% { transform: translateY(-15px) rotate(2deg); }
-  }
-
-  @keyframes glow-pulse {
-    0%, 100% { box-shadow: 0 0 0 6px var(--frog-yellow), 0 0 40px rgba(255, 241, 118, 0.6), 0 0 80px rgba(76, 175, 63, 0.4); }
-    50% { box-shadow: 0 0 0 6px var(--frog-yellow), 0 0 60px rgba(255, 241, 118, 0.9), 0 0 120px rgba(233, 30, 99, 0.5); }
-  }
-
-  .hero h1 {
-    font-family: 'Bangers', cursive;
-    font-size: clamp(3.5rem, 12vw, 9rem);
-    line-height: 0.9;
-    letter-spacing: 4px;
-    color: var(--frog-yellow);
-    text-shadow:
-      4px 4px 0 var(--weed-pink),
-      8px 8px 0 var(--frog-dark),
-      12px 12px 30px rgba(0,0,0,0.5);
-    margin-bottom: 0.5rem;
-    transform: rotate(-2deg);
-  }
-
-  .hero h1 .dollar {
-    color: var(--frog-lime);
-    display: inline-block;
-    animation: wiggle 2s ease-in-out infinite;
-  }
-
-  @keyframes wiggle {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(-8deg) scale(1.1); }
-    75% { transform: rotate(8deg) scale(1.1); }
-  }
-
-  .hero .subtitle {
-    font-family: 'Permanent Marker', cursive;
-    font-size: clamp(1.2rem, 3vw, 2rem);
-    color: #fff;
-    margin-bottom: 0.5rem;
-    text-shadow: 2px 2px 0 var(--frog-dark);
-  }
-
-  .hero .by {
-    font-family: 'Permanent Marker', cursive;
-    font-size: clamp(1rem, 2vw, 1.4rem);
-    color: var(--frog-yellow);
-    margin-bottom: 2rem;
-    transform: rotate(-1deg);
-  }
-
-  .hero .tagline {
-    max-width: 700px;
-    font-size: clamp(1rem, 2vw, 1.3rem);
-    line-height: 1.5;
-    margin-bottom: 2.5rem;
-    background: rgba(0,0,0,0.4);
-    padding: 1rem 1.5rem;
-    border: 3px dashed var(--frog-yellow);
-    border-radius: 20px;
-    transform: rotate(0.5deg);
-  }
-
-  .hero-buttons {
-    display: flex;
     gap: 1rem;
-    flex-wrap: wrap;
-    justify-content: center;
+    padding: 0.45rem 1.2rem;
+    font-family: 'VT323', monospace;
+    font-size: 1.15rem;
+    letter-spacing: 0.5px;
+    color: var(--phos);
+    white-space: nowrap;
   }
-
-  .btn {
-    font-family: 'Bangers', cursive;
-    font-size: 1.4rem;
-    letter-spacing: 3px;
-    padding: 1rem 2rem;
-    border: 4px solid #000;
-    border-radius: 60px;
-    text-decoration: none;
-    color: #000;
-    background: var(--frog-yellow);
-    box-shadow: 6px 6px 0 #000;
-    transition: all 0.15s;
-    cursor: pointer;
+  .strip-row .callsign { color: var(--readout); }
+  .strip-row .callsign b { color: var(--phos); font-weight: 400; }
+  .strip-row .clock { color: var(--phos-text); }
+  .lamp {
     display: inline-flex;
     align-items: center;
-    gap: 0.5rem;
+    gap: 0.45em;
+    color: var(--amber);
   }
-  .btn:hover {
-    transform: translate(-3px, -3px) rotate(-2deg);
-    box-shadow: 9px 9px 0 #000;
+  .lamp::before {
+    content: '';
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--amber);
+    box-shadow: 0 0 8px var(--amber);
+    animation: lampblink 1.6s steps(1) infinite;
   }
-  .btn:active {
-    transform: translate(3px, 3px);
-    box-shadow: 0 0 0 #000;
-  }
-  .btn.btn-pink { background: var(--weed-pink); color: #fff; }
-  .btn.btn-green { background: var(--frog-green); color: #fff; }
-  .btn.btn-tg { background: #229ED9; color: #fff; }
+  .lamp.live { color: var(--lime); }
+  .lamp.live::before { background: var(--lime); box-shadow: 0 0 8px var(--lime); animation: none; }
+  @keyframes lampblink { 0%, 60% { opacity: 1; } 61%, 100% { opacity: 0.25; } }
+  .strip-row .chain { color: var(--lime); }
 
   /* ticker */
   .ticker {
-    background: var(--frog-yellow);
-    color: #000;
-    padding: 0.7rem 0;
     overflow: hidden;
-    border-top: 4px solid #000;
-    border-bottom: 4px solid #000;
-    position: relative;
-    z-index: 2;
+    border-top: 1px solid #0e1a0e;
+    background: #030503;
   }
   .ticker-track {
-    display: flex;
+    display: inline-flex;
     white-space: nowrap;
-    animation: scroll 30s linear infinite;
-    font-family: 'Bangers', cursive;
-    font-size: 1.5rem;
-    letter-spacing: 2px;
-  }
-  .ticker-track span { display: inline-flex; align-items: center; padding: 0 1.5rem; }
-  .ticker-track .dot {
-    color: var(--weed-pink);
-    font-size: 2rem;
-    padding: 0 0.5rem;
-  }
-  @keyframes scroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
-
-  /* sections */
-  section {
-    position: relative;
-    z-index: 2;
-    padding: 5rem 1.5rem;
-  }
-
-  .section-title {
-    font-family: 'Bangers', cursive;
-    font-size: clamp(2.5rem, 8vw, 5rem);
-    text-align: center;
-    color: var(--frog-yellow);
-    letter-spacing: 4px;
-    margin-bottom: 3rem;
-    text-shadow: 4px 4px 0 var(--weed-pink), 8px 8px 0 var(--frog-dark);
-    transform: rotate(-1.5deg);
-  }
-
-  /* about */
-  .about-wrap {
-    max-width: 1100px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
-    align-items: center;
-  }
-  @media (max-width: 768px) { .about-wrap { grid-template-columns: 1fr; } }
-
-  .about-image {
-    background: rgba(255,255,255,0.05);
-    border: 4px solid var(--frog-yellow);
-    border-radius: 24px;
-    padding: 1.5rem;
-    transform: rotate(-2deg);
-    box-shadow: 10px 10px 0 var(--frog-dark);
-  }
-  .about-image img { width: 100%; height: auto; border-radius: 16px; display: block; }
-  .about-image p {
-    text-align: center;
-    margin-top: 0.8rem;
-    font-family: 'Permanent Marker', cursive;
-    font-size: 1rem;
-    color: var(--frog-yellow);
-  }
-
-  .about-text h3 {
-    font-family: 'Bangers', cursive;
-    font-size: 2.5rem;
-    color: var(--frog-lime);
-    letter-spacing: 2px;
-    margin-bottom: 1rem;
-    line-height: 1.1;
-  }
-  .about-text p {
-    font-size: 1.15rem;
-    line-height: 1.7;
-    margin-bottom: 1rem;
-  }
-  .about-text strong { color: var(--frog-yellow); }
-  .about-text em { color: var(--weed-pink); font-style: normal; font-weight: 700; }
-
-  /* lore quote */
-  .lore-quote {
-    max-width: 900px;
-    margin: 3rem auto 0;
-    font-family: 'Permanent Marker', cursive;
-    font-size: clamp(1.3rem, 3vw, 2rem);
-    text-align: center;
-    color: var(--frog-yellow);
-    line-height: 1.4;
-    padding: 2rem;
-    background: rgba(0,0,0,0.4);
-    border: 3px dashed var(--weed-pink);
-    border-radius: 20px;
-    transform: rotate(0.8deg);
-  }
-  .lore-quote::before { content: "\201C "; color: var(--weed-pink); font-size: 2em; vertical-align: -0.4em; }
-  .lore-quote::after  { content: " \201D"; color: var(--weed-pink); font-size: 2em; vertical-align: -0.4em; }
-
-  /* tokenomics */
-  .tokenomics-grid {
-    max-width: 1100px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.5rem;
-  }
-  .tok-card {
-    background: linear-gradient(145deg, var(--frog-green), var(--frog-dark));
-    border: 4px solid var(--frog-yellow);
-    border-radius: 24px;
-    padding: 2rem 1.5rem;
-    text-align: center;
-    box-shadow: 6px 6px 0 #000;
-    transition: all 0.2s;
-  }
-  .tok-card:hover {
-    transform: translate(-3px, -3px) rotate(-1.5deg);
-    box-shadow: 9px 9px 0 #000;
-  }
-  .tok-card h4 {
-    font-family: 'Bangers', cursive;
-    font-size: 2.4rem;
-    color: var(--frog-yellow);
-    letter-spacing: 2px;
-    line-height: 1;
-    margin-bottom: 0.5rem;
-  }
-  .tok-card p {
-    font-family: 'Permanent Marker', cursive;
+    animation: feedscroll 52s linear infinite;
+    font-family: 'VT323', monospace;
     font-size: 1.1rem;
-    color: #fff;
+    color: var(--phos-text);
+    padding: 0.3rem 0;
   }
+  .ticker:hover .ticker-track,
+  .ticker:active .ticker-track,
+  .ticker:focus-within .ticker-track { animation-play-state: paused; }
+  .ticker-track span { padding: 0 1.1rem; }
+  .ticker-track .sep { color: #123317; }
+  .ticker-track a { color: var(--phos); }
+  .ticker-track .hot { color: var(--amber); }
+  @keyframes feedscroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
-  /* contract */
-  .contract-box {
-    max-width: 900px;
-    margin: 2.5rem auto 0;
-    background: #000;
-    border: 4px dashed var(--frog-lime);
-    border-radius: 20px;
-    padding: 1.5rem;
-    text-align: center;
-  }
-  .contract-box .label {
-    font-family: 'Bangers', cursive;
-    font-size: 1.4rem;
-    color: var(--frog-yellow);
-    letter-spacing: 2px;
-    margin-bottom: 0.6rem;
-  }
-  .contract-box .ca {
-    font-family: 'Courier New', monospace;
-    font-size: clamp(0.75rem, 1.8vw, 1rem);
-    color: var(--frog-lime);
-    word-break: break-all;
-    background: rgba(76, 175, 63, 0.1);
-    padding: 0.8rem;
-    border-radius: 10px;
-    border: 1px solid var(--frog-green);
-    margin-bottom: 1rem;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .contract-box .ca:hover { background: rgba(76, 175, 63, 0.25); }
-  .contract-box .copy-hint {
-    font-size: 0.9rem;
-    color: var(--smoke);
-    font-style: italic;
-  }
-
-  /* timeline */
-  .timeline-wrap {
-    max-width: 1100px;
+  /* ============ THE CONSOLE (hero) ============ */
+  .console {
+    max-width: 1240px;
     margin: 0 auto;
-    background: rgba(0,0,0,0.3);
-    border: 4px solid var(--frog-yellow);
-    border-radius: 30px;
-    padding: 3rem 1rem;
-    box-shadow: 0 0 60px rgba(76,175,63,0.4) inset;
+    padding: 4.2rem 1.5rem 3.5rem;
+    display: grid;
+    grid-template-columns: 55fr 45fr;
+    gap: 3rem;
+    align-items: start;
   }
-  .timeline-img-wrap {
-    text-align: center;
-    margin-bottom: 2rem;
+  @media (max-width: 900px) {
+    .console { grid-template-columns: 1fr; padding-top: 2.5rem; }
   }
-  .timeline-img-wrap img {
-    max-width: 100%;
-    height: auto;
-    border-radius: 20px;
-    box-shadow: 6px 6px 0 var(--frog-dark);
+
+  .wordmark {
+    font-family: 'Workbench', 'VT323', monospace;
+    font-size: clamp(2.6rem, 6.4vw, 5.2rem);
+    line-height: 1.02;
+    color: var(--phos);
+    text-shadow: 0 0 18px rgba(53,240,106,0.35);
+    margin-bottom: 1.6rem;
   }
-  .timeline-caption {
-    text-align: center;
-    font-family: 'Permanent Marker', cursive;
-    font-size: 1.2rem;
-    color: var(--frog-yellow);
-    margin-top: 1rem;
+  .wordmark small {
+    display: block;
+    font-family: 'VT323', monospace;
+    font-size: clamp(1.05rem, 1.8vw, 1.35rem);
+    color: var(--phos-text);
+    letter-spacing: 2px;
+    margin-bottom: 0.7rem;
+  }
+
+  .hero-sub {
+    max-width: 56ch;
+    color: var(--readout);
+    margin-bottom: 1.8rem;
+  }
+  .hero-sub b { color: var(--lime); font-weight: 600; }
+  .hero-sub em { color: var(--amber); font-style: normal; }
+
+  .bootlog {
+    background: #030603;
+    border: 1px solid var(--phos-dim);
+    padding: 1rem 1.2rem;
+    font-family: 'VT323', monospace;
+    font-size: 1.15rem;
+    color: var(--phos);
+    min-height: 11.2em;
     line-height: 1.5;
-  }
-  .timeline-caption strong { color: var(--weed-pink); }
-
-  /* roadmap */
-  .roadmap {
-    max-width: 1000px;
-    margin: 0 auto;
-    display: grid;
-    gap: 1.5rem;
-  }
-  .phase {
-    background: rgba(0,0,0,0.45);
-    border: 4px solid var(--frog-green);
-    border-radius: 20px;
-    padding: 1.8rem 2rem;
+    white-space: pre-wrap;
+    word-break: break-word;
+    margin-bottom: 1.8rem;
     position: relative;
-    transition: all 0.2s;
   }
-  .phase:hover {
-    border-color: var(--frog-yellow);
-    transform: translateX(8px);
+  .bootlog .cursor {
+    display: inline-block;
+    width: 0.55em; height: 1em;
+    background: var(--phos);
+    vertical-align: -0.15em;
+    animation: curblink 1s steps(1) infinite;
   }
-  .phase:nth-child(odd) { transform: rotate(-0.5deg); }
-  .phase:nth-child(even) { transform: rotate(0.5deg); }
-  .phase:nth-child(odd):hover, .phase:nth-child(even):hover { transform: translateX(8px); }
-  .phase h4 {
-    font-family: 'Bangers', cursive;
-    font-size: 2rem;
-    color: var(--frog-yellow);
-    letter-spacing: 2px;
-    margin-bottom: 0.5rem;
-  }
-  .phase ul {
-    list-style: none;
-    padding: 0;
-  }
-  .phase li {
-    padding: 0.4rem 0 0.4rem 1.8rem;
-    position: relative;
-    font-size: 1.05rem;
-  }
-  .phase li::before {
-    content: "";
+  @keyframes curblink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+  .bootlog .tag {
     position: absolute;
-    left: 0;
-    top: 1rem;
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: var(--frog-lime);
-  }
-  .phase li.done {
-    text-decoration: line-through;
-    opacity: 0.55;
-  }
-  .phase li.done::before {
-    background: var(--frog-yellow);
+    top: -0.8em; left: 0.9rem;
+    background: var(--console);
+    padding: 0 0.5em;
+    font-size: 0.95rem;
+    color: var(--phos-text);
+    letter-spacing: 2px;
   }
 
-  /* how to buy */
-  .buy-grid {
-    max-width: 1100px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    gap: 1.5rem;
+  /* the single CTA: a keyboard key */
+  .key {
+    display: inline-block;
+    font-family: 'VT323', monospace;
+    font-size: 1.35rem;
+    letter-spacing: 1px;
+    color: var(--console);
+    background: var(--lime);
+    border: 1px solid #8aa603;
+    border-bottom-width: 5px;
+    padding: 0.55rem 1.4rem 0.45rem;
+    box-shadow: 0 0 22px rgba(205,245,5,0.22);
   }
-  .buy-step {
-    background: linear-gradient(145deg, rgba(233,30,99,0.2), rgba(0,0,0,0.6));
-    border: 4px solid var(--weed-pink);
-    border-radius: 24px;
-    padding: 2rem 1.5rem;
+  .key:hover { background: var(--phos); border-color: #1a8a44; color: var(--console); }
+  .key:active { border-bottom-width: 1px; transform: translateY(4px); }
+
+  /* PAD CAM 01 */
+  .padcam {
+    background: #101410;
+    border: 1px solid #202a20;
+    padding: 10px;
+    box-shadow:
+      inset 0 0 0 2px #060906,
+      inset 0 0 30px rgba(0,0,0,0.8),
+      0 0 40px rgba(0,0,0,0.6);
     position: relative;
-    transition: all 0.2s;
   }
-  .buy-step:hover { transform: translateY(-6px) rotate(-1deg); }
-  .buy-step .num {
+  .padcam .screw {
     position: absolute;
-    top: -25px;
-    left: 20px;
-    width: 56px;
-    height: 56px;
-    background: var(--frog-yellow);
-    color: #000;
-    border: 4px solid #000;
+    width: 8px; height: 8px;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-family: 'Bangers', cursive;
-    font-size: 2rem;
-    box-shadow: 4px 4px 0 #000;
+    background: radial-gradient(circle at 35% 35%, #3a453a, #0a0d0a 70%);
   }
-  .buy-step h4 {
-    font-family: 'Bangers', cursive;
-    font-size: 1.8rem;
-    color: var(--frog-yellow);
-    letter-spacing: 2px;
-    margin-top: 1rem;
-    margin-bottom: 0.6rem;
-  }
-  .buy-step p { font-size: 1rem; line-height: 1.5; }
-
-  /* meme gallery */
-  .meme-gallery {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1.5rem;
-  }
-  .meme-card {
-    aspect-ratio: 1 / 1;
-    background: var(--frog-dark);
-    border: 4px solid var(--frog-yellow);
-    border-radius: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem;
-    text-align: center;
-    box-shadow: 6px 6px 0 #000;
-    transition: all 0.2s;
-    position: relative;
-    overflow: hidden;
-  }
-  .meme-card:nth-child(odd) { transform: rotate(-2deg); }
-  .meme-card:nth-child(even) { transform: rotate(2deg); }
-  .meme-card:hover { transform: rotate(0) scale(1.05); z-index: 5; }
-  .meme-card .text {
-    font-family: 'Bangers', cursive;
-    font-size: 1.8rem;
-    color: var(--frog-yellow);
-    letter-spacing: 2px;
-    line-height: 1.05;
-    margin-bottom: 0.4rem;
-  }
-  .meme-card .sub {
-    font-family: 'Permanent Marker', cursive;
-    font-size: 1rem;
-    color: #fff;
-  }
-
-  /* faq */
-  .faq-wrap {
-    max-width: 800px;
-    margin: 0 auto;
-  }
-  .faq-item {
-    background: rgba(0,0,0,0.4);
-    border: 3px solid var(--frog-green);
-    border-radius: 16px;
-    margin-bottom: 1rem;
-    overflow: hidden;
-    transition: all 0.2s;
-  }
-  .faq-item:hover { border-color: var(--frog-yellow); }
-  .faq-q {
-    width: 100%;
-    background: none;
-    border: none;
-    color: #fff;
-    text-align: left;
-    padding: 1.2rem 1.5rem;
-    font-family: 'Bangers', cursive;
-    font-size: 1.4rem;
-    letter-spacing: 1.5px;
-    cursor: pointer;
+  .padcam .screw.tl { top: 5px; left: 5px; }
+  .padcam .screw.tr { top: 5px; right: 5px; }
+  .padcam .screw.bl { bottom: 5px; left: 5px; }
+  .padcam .screw.br { bottom: 5px; right: 5px; }
+  .cam-head {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    font-family: 'VT323', monospace;
+    font-size: 1.05rem;
+    color: var(--readout);
+    letter-spacing: 1.5px;
+    padding: 0.25rem 0.4rem 0.5rem;
   }
-  .faq-q:hover { color: var(--frog-yellow); }
-  .faq-q .arrow {
-    font-size: 1.2rem;
-    transition: transform 0.2s;
-    color: var(--frog-yellow);
+  .cam-head .rec { color: var(--klaxon); }
+  .cam-head .rec::after {
+    content: '●';
+    margin-left: 0.35em;
+    animation: lampblink 1.1s steps(1) infinite;
   }
-  .faq-item.open .arrow { transform: rotate(180deg); }
-  .faq-a {
-    max-height: 0;
+  .cam-head .stamp-time { color: var(--phos-text); }
+  .cam-screen {
+    position: relative;
     overflow: hidden;
-    transition: max-height 0.3s ease;
-    padding: 0 1.5rem;
-  }
-  .faq-item.open .faq-a {
-    max-height: 400px;
-    padding: 0 1.5rem 1.2rem;
-  }
-  .faq-a p { line-height: 1.6; font-size: 1rem; }
-
-  /* cta final */
-  .final-cta {
-    text-align: center;
-    padding: 6rem 1.5rem;
-  }
-  .final-cta h2 {
-    font-family: 'Bangers', cursive;
-    font-size: clamp(3rem, 10vw, 7rem);
-    color: var(--frog-yellow);
-    letter-spacing: 4px;
-    line-height: 0.9;
-    text-shadow: 5px 5px 0 var(--weed-pink), 10px 10px 0 var(--frog-dark);
-    margin-bottom: 2rem;
-    transform: rotate(-2deg);
-  }
-  .final-cta p {
-    font-size: 1.4rem;
-    margin-bottom: 2.5rem;
-    font-family: 'Permanent Marker', cursive;
-  }
-
-  /* footer */
-  footer {
     background: #000;
-    border-top: 6px solid var(--frog-yellow);
-    padding: 3rem 1.5rem 1.5rem;
-    text-align: center;
+  }
+  .cam-screen img {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: contrast(1.04) saturate(1.05);
+  }
+  .cam-screen .cam-lines {
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(to bottom, rgba(0,0,0,0.14) 0 2px, transparent 2px 5px);
+    pointer-events: none;
+  }
+  .cam-screen .wisp {
+    position: absolute;
+    left: 17%;
+    top: 48%;
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(200,230,207,0.28) 0%, transparent 70%);
+    filter: blur(6px);
+    animation: rise 7s linear infinite;
+    pointer-events: none;
+  }
+  .cam-screen .wisp.two {
+    left: 21%; top: 55%;
+    width: 30px; height: 30px;
+    animation-duration: 5.5s;
+    animation-delay: -2.5s;
+  }
+  @keyframes rise {
+    0%   { transform: translateY(0) scale(0.6); opacity: 0; }
+    15%  { opacity: 1; }
+    80%  { opacity: 0.4; }
+    100% { transform: translateY(-190px) scale(1.7); opacity: 0; }
+  }
+  .cam-foot {
+    font-family: 'VT323', monospace;
+    font-size: 0.98rem;
+    color: var(--phos-text);
+    padding: 0.45rem 0.4rem 0.1rem;
+    letter-spacing: 1px;
+  }
+
+  /* ============ SECTIONS ============ */
+  section {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 4.5rem 1.5rem;
+    border-top: 1px solid #0e1a0e;
+    scroll-margin-top: 5.2rem;
+  }
+  .sec-label {
+    font-family: 'VT323', monospace;
+    font-size: 1.05rem;
+    letter-spacing: 3px;
+    color: var(--phos-text);
+    margin-bottom: 0.4rem;
+  }
+  .sec-title {
+    font-family: 'VT323', monospace;
+    font-size: clamp(1.9rem, 4vw, 3rem);
+    color: var(--phos);
+    letter-spacing: 1px;
+    margin-bottom: 2.2rem;
+    line-height: 1.05;
+  }
+  .sec-title .amber { color: var(--amber); }
+
+  /* ============ BRIEFING 001 — the paper document ============ */
+  .briefing-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 640px) 1fr;
+    gap: 3rem;
+  }
+  @media (max-width: 900px) { .briefing-wrap { grid-template-columns: 1fr; } }
+
+  .memo {
+    background: var(--paper);
+    color: var(--ink);
+    padding: 2.2rem 2.4rem 2rem;
+    position: relative;
+    box-shadow: 0 0 50px rgba(53,240,106,0.07), 8px 10px 0 rgba(0,0,0,0.55);
+  }
+  .memo .tape {
+    position: absolute;
+    width: 92px; height: 26px;
+    background: linear-gradient(rgba(214,214,190,0.55), rgba(196,196,170,0.45));
+    top: -13px;
+  }
+  .memo .tape.l { left: 8%; clip-path: polygon(3% 0, 100% 4%, 97% 100%, 0 92%); }
+  .memo .tape.r { right: 8%; clip-path: polygon(0 6%, 97% 0, 100% 94%, 4% 100%); }
+  .memo-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 1rem;
+    border-bottom: 2px solid var(--ink);
+    padding-bottom: 0.8rem;
+    margin-bottom: 1.2rem;
+  }
+  .memo-head .doc-meta {
+    font-size: 0.8rem;
+    line-height: 1.5;
+    letter-spacing: 0.5px;
+  }
+  .memo-head .doc-meta b { font-weight: 600; }
+  .barcode {
+    font-family: 'Libre Barcode 128 Text', 'IBM Plex Mono', monospace;
+    font-size: 2.6rem;
+    line-height: 1;
+    letter-spacing: 0;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+  .memo h3 {
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  .memo p {
+    font-size: 0.92rem;
+    margin-bottom: 0.95rem;
+    line-height: 1.7;
+  }
+  .memo p b { font-weight: 600; }
+  .memo p .hl { background: rgba(205,245,5,0.5); padding: 0 0.2em; }
+  .memo hr { border: none; border-top: 1px solid rgba(35,36,28,0.35); margin: 1.1rem 0; }
+  .memo .sig {
+    font-style: italic;
+    font-size: 0.85rem;
+    color: #4a4b40;
+  }
+  .stamp {
+    position: absolute;
+    right: 1.1rem;
+    bottom: 1.6rem;
+    transform: rotate(-8deg);
+    border: 3px solid var(--klaxon);
+    color: var(--klaxon);
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    letter-spacing: 2px;
+    padding: 0.25rem 0.8rem;
+    text-transform: uppercase;
+    mix-blend-mode: multiply;
+    filter: url(#inkbleed);
+    opacity: 0.85;
+    pointer-events: none;
+  }
+  .memo-caption {
+    font-family: 'VT323', monospace;
+    color: var(--phos-text);
+    font-size: 1.05rem;
+    margin-top: 0.9rem;
+    letter-spacing: 1px;
+  }
+
+  .briefing-side { padding-top: 0.5rem; }
+  .briefing-side p { max-width: 52ch; margin-bottom: 1rem; }
+  .briefing-side p b { color: var(--lime); font-weight: 600; }
+  .briefing-side .quote {
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    color: var(--phos);
+    line-height: 1.3;
+    margin: 1.6rem 0;
+    max-width: 30ch;
+  }
+  .briefing-side .quote .dim { color: var(--phos-text); }
+
+  /* ============ ARCHIVE FEED ============ */
+  .archive-wrap {
+    display: grid;
+    grid-template-columns: 58fr 42fr;
+    gap: 3rem;
+    align-items: start;
+  }
+  @media (max-width: 900px) { .archive-wrap { grid-template-columns: 1fr; } }
+
+  .monitor {
+    background: #101410;
+    border: 1px solid #202a20;
+    padding: 10px;
+    box-shadow: inset 0 0 0 2px #060906, inset 0 0 30px rgba(0,0,0,0.8);
+  }
+  .monitor .mon-head {
+    font-family: 'VT323', monospace;
+    font-size: 1rem;
+    color: var(--readout);
+    letter-spacing: 1.5px;
+    padding: 0.2rem 0.3rem 0.5rem;
+    display: flex;
+    justify-content: space-between;
+  }
+  .monitor .mon-head .ok { color: var(--phos); }
+  .mon-screen { position: relative; overflow: hidden; background: #000; }
+  .mon-screen img { display: block; width: 100%; height: auto; }
+  .mon-screen .cam-lines {
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(to bottom, rgba(0,0,0,0.16) 0 2px, transparent 2px 5px);
+    pointer-events: none;
+  }
+
+  table.timeline {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'VT323', monospace;
+    font-size: 1.35rem;
+    color: var(--readout);
+  }
+  table.timeline caption {
+    text-align: left;
+    font-size: 1rem;
+    color: var(--phos-text);
+    letter-spacing: 2px;
+    padding-bottom: 0.6rem;
+  }
+  table.timeline td, table.timeline th {
+    border: 1px solid var(--phos-dim);
+    padding: 0.55rem 0.9rem;
+    text-align: left;
+    font-weight: 400;
+  }
+  table.timeline th { color: var(--phos-text); font-size: 1.05rem; letter-spacing: 2px; }
+  table.timeline tr.here td {
+    color: var(--console);
+    background: var(--lime);
+  }
+  table.timeline tr.here td .cur {
+    display: inline-block;
+    width: 0.5em; height: 0.9em;
+    background: var(--console);
+    vertical-align: -0.1em;
+    animation: curblink 1s steps(1) infinite;
+    margin-left: 0.3em;
+  }
+  .archive-note {
+    margin-top: 1.3rem;
+    max-width: 46ch;
+    color: var(--readout);
+  }
+  .archive-note b { color: var(--lime); font-weight: 600; }
+
+  /* ============ FLIGHT RECORD (venue) ============ */
+  .venue-line { margin-bottom: 2.6rem; }
+  .venue-line .big {
+    font-family: 'VT323', monospace;
+    font-size: clamp(2.4rem, 7vw, 5rem);
+    color: var(--phos);
+    line-height: 1;
+    letter-spacing: 1px;
+  }
+  .venue-line .big .lime { color: var(--lime); }
+  .venue-line .cap {
+    color: var(--readout);
+    margin-top: 0.4rem;
+    max-width: 60ch;
+  }
+  .venue-src {
+    font-family: 'VT323', monospace;
+    color: var(--phos-text);
+    font-size: 1rem;
+    letter-spacing: 1px;
+  }
+
+  /* ============ FLIGHT DATA ============ */
+  .supply {
+    font-family: 'VT323', monospace;
+    font-size: clamp(2.2rem, 6.5vw, 4.6rem);
+    color: var(--phos);
+    line-height: 1;
+    margin-bottom: 0.3rem;
+    letter-spacing: 1px;
+    word-break: break-word;
+  }
+  .supply-cap {
+    color: var(--phos-text);
+    font-family: 'VT323', monospace;
+    font-size: 1.15rem;
+    letter-spacing: 2px;
+    margin-bottom: 2.8rem;
+  }
+
+  .breakers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2.2rem 3.5rem;
+    margin-bottom: 2.8rem;
+  }
+  .breaker {
+    display: flex;
+    align-items: center;
+    gap: 1.1rem;
+  }
+  .breaker .track {
+    width: 64px; height: 28px;
+    background: #0a0f0a;
+    border: 1px solid #202a20;
+    box-shadow: inset 0 2px 6px rgba(0,0,0,0.9);
+    position: relative;
+    flex: none;
+  }
+  .breaker .lever {
+    position: absolute;
+    top: 2px;
+    width: 24px; height: 22px;
+    background: linear-gradient(#4a554a, #2a322a 60%, #1a201a);
+    border: 1px solid #0a0d0a;
+  }
+  .breaker.on .lever { right: 2px; }
+  .breaker.off .lever { left: 2px; }
+  .breaker .blabel {
+    font-family: 'VT323', monospace;
+    font-size: 1.25rem;
+    letter-spacing: 1.5px;
+    color: var(--readout);
+    line-height: 1.15;
+  }
+  .breaker .blabel .state { display: block; font-size: 1.05rem; }
+  .breaker.on .blabel .state { color: var(--lime); text-shadow: 0 0 10px rgba(205,245,5,0.5); }
+  .breaker.off .blabel .state { color: var(--phos-dim); }
+  .breaker .lamp-dot {
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    flex: none;
+  }
+  .breaker.on .lamp-dot { background: var(--lime); box-shadow: 0 0 10px var(--lime); }
+  .breaker.off .lamp-dot { background: #14200f; box-shadow: inset 0 0 3px #000; }
+
+  .scanlog {
+    background: #030603;
+    border: 1px solid var(--phos-dim);
+    padding: 1rem 1.2rem;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    color: var(--phos);
+    max-width: 640px;
+    line-height: 1.6;
+  }
+  .scanlog .nf { color: var(--phos-text); }
+  .scanlog .ok { color: var(--lime); }
+
+  /* ============ PRE-FLIGHT CHECKLIST ============ */
+  .checklist {
+    border-left: 2px solid var(--phos-dim);
+    padding-left: 0;
+    max-width: 760px;
+    list-style: none;
+  }
+  .checklist li {
+    display: grid;
+    grid-template-columns: 4.2em 2em 1fr;
+    gap: 0.6rem;
+    padding: 0.85rem 0 0.85rem 1.2rem;
+    border-bottom: 1px dashed #14200f;
+    align-items: baseline;
+  }
+  .checklist .t {
+    font-family: 'VT323', monospace;
+    font-size: 1.25rem;
+    color: var(--phos-text);
+  }
+  .checklist .box {
+    font-family: 'VT323', monospace;
+    font-size: 1.25rem;
+    color: var(--phos);
+  }
+  .checklist li.pend .box { color: var(--phos-text); }
+  .checklist .step b {
+    color: var(--phos);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  .checklist .step { color: var(--readout); }
+  .checklist .step a { color: var(--lime); }
+
+  /* ============ SECURITY NOTICE — CA PANEL ============ */
+  .hazard {
+    background: repeating-linear-gradient(45deg, var(--klaxon) 0 14px, #100404 14px 28px);
+    padding: 8px;
+    max-width: 860px;
+  }
+  .hazard-inner {
+    background: #070303;
+    padding: 2rem 2rem 1.8rem;
+  }
+  .hazard-inner h3 {
+    font-family: 'VT323', monospace;
+    font-size: 1.7rem;
+    color: var(--klaxon);
+    letter-spacing: 2px;
+    margin-bottom: 1.1rem;
+    font-weight: 400;
+  }
+  .ca-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.8rem;
+    align-items: stretch;
+    margin-bottom: 1.2rem;
+  }
+  .ca-field {
+    flex: 1 1 320px;
+    font-family: 'VT323', monospace;
+    font-size: 1.3rem;
+    color: var(--phos-text);
+    background: #030603;
+    border: 1px solid var(--phos-dim);
+    padding: 0.6rem 0.9rem;
+    letter-spacing: 1px;
+    overflow-wrap: anywhere;
+  }
+  .ca-field.live { color: var(--phos); }
+  .copy-key {
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    padding: 0.6rem 1.2rem;
+    background: #0a0f0a;
+    color: var(--phos-dim);
+    border: 1px solid var(--phos-dim);
+    border-bottom-width: 4px;
+    cursor: not-allowed;
+  }
+  .copy-key.live {
+    background: var(--lime);
+    color: var(--console);
+    border-color: #8aa603;
+    cursor: pointer;
+  }
+  .copy-key.live:active { border-bottom-width: 1px; transform: translateY(3px); }
+  .hazard-inner .warn {
+    color: var(--amber);
+    font-size: 0.92rem;
+    line-height: 1.7;
+  }
+  .hazard-inner .warn a { color: var(--amber); text-decoration: underline; }
+  .hazard-inner .warn a:hover { background: var(--amber); color: #070303; text-decoration: none; }
+  .hazard-inner .counterfeit {
+    margin-top: 0.9rem;
+    font-family: 'VT323', monospace;
+    font-size: 1.15rem;
+    letter-spacing: 1px;
+    color: var(--klaxon);
+  }
+
+  /* ============ COMMS (footer) ============ */
+  footer {
+    border-top: 1px solid var(--phos-dim);
+    position: relative;
+    overflow: hidden;
+    padding-bottom: 0;
+  }
+  .comms {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 4rem 1.5rem 2.5rem;
     position: relative;
     z-index: 2;
   }
-  footer img {
-    width: 80px;
-    height: 80px;
-    border-radius: 50%;
-    border: 3px solid var(--frog-green);
-    margin-bottom: 1rem;
-  }
-  footer .socials {
+  .freq {
     display: flex;
-    justify-content: center;
-    gap: 1rem;
     flex-wrap: wrap;
-    margin: 1.5rem 0;
+    align-items: baseline;
+    gap: 0.8rem 1.4rem;
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    padding: 0.7rem 0;
+    border-bottom: 1px dashed #14200f;
+    letter-spacing: 1px;
   }
-  footer .socials a {
-    padding: 0.6rem 1.4rem;
-    border-radius: 50px;
-    background: var(--frog-green);
-    color: #fff;
-    text-decoration: none;
-    font-family: 'Bangers', cursive;
+  .freq .band { color: var(--phos-text); font-size: 1.1rem; letter-spacing: 3px; min-width: 7.5em; }
+  .freq a { color: var(--phos); }
+  .freq .desc { color: var(--phos-text); font-size: 1.05rem; }
+  .smallprint {
+    margin-top: 2.2rem;
+    max-width: 72ch;
+    color: #6f8a76;
+    font-size: 0.8rem;
+    line-height: 1.7;
+  }
+  .smallprint b { color: #8fae96; font-weight: 600; }
+  .signoff {
+    margin-top: 1.6rem;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    color: var(--phos-text);
     letter-spacing: 2px;
-    font-size: 1.1rem;
-    border: 3px solid var(--frog-yellow);
-    transition: all 0.2s;
   }
-  footer .socials a:hover {
-    background: var(--frog-yellow);
-    color: #000;
-    transform: rotate(-3deg) scale(1.05);
-  }
-  footer .disclaimer {
-    max-width: 700px;
-    margin: 1.5rem auto 0;
-    font-size: 0.85rem;
-    line-height: 1.5;
-    color: var(--smoke);
-    opacity: 0.8;
-  }
-  footer .copyright {
-    margin-top: 1.5rem;
-    font-family: 'Permanent Marker', cursive;
-    color: var(--frog-yellow);
-    font-size: 1.1rem;
+  .burnin {
+    font-family: 'VT323', monospace;
+    font-size: clamp(6rem, 27vw, 24rem);
+    line-height: 0.72;
+    letter-spacing: -0.02em;
+    color: transparent;
+    -webkit-text-stroke: 1px var(--phos-dim);
+    text-align: left;
+    white-space: nowrap;
+    user-select: none;
+    pointer-events: none;
+    margin: 1.5rem 0 -0.16em -0.04em;
+    opacity: 0.55;
   }
 
-  /* easter: clicking logo blows smoke */
-  .smoke-puff {
-    position: fixed;
-    pointer-events: none;
-    width: 80px; height: 80px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, transparent 70%);
-    animation: puff 1.2s ease-out forwards;
-    z-index: 50;
-  }
-  @keyframes puff {
-    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
-    100% { transform: translate(-50%, -150%) scale(2.5); opacity: 0; }
+  /* ============ MOBILE ============ */
+  @media (max-width: 700px) {
+    .strip-row { font-size: 1rem; padding: 0.4rem 0.8rem; }
+    .strip-row .clock, .strip-row .chain { display: none; }
+    .memo { padding: 1.6rem 1.2rem 1.4rem; }
+    .memo-head { flex-direction: column; align-items: flex-start; gap: 0.7rem; }
+    .barcode { font-size: 1.9rem; }
+    .stamp {
+      position: static;
+      display: inline-block;
+      margin-top: 0.9rem;
+      transform: rotate(-4deg);
+      font-size: 1.25rem;
+    }
+    .bootlog { font-size: 0.98rem; min-height: 9.5em; }
+    .scanlog { font-size: 0.95rem; }
+    .key { font-size: 1.1rem; }
+    .key .key-url { display: none; }
+    .burnin { font-size: 34vw; }
+    .freq .band { min-width: 0; }
+    section { padding: 3.2rem 1.1rem; }
+    .console { padding-left: 1.1rem; padding-right: 1.1rem; }
   }
 </style>
 </head>
 <body>
 
-<div class="smoke-bg">
-  <span></span><span></span><span></span><span></span><span></span>
-</div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="inkbleed">
+    <feTurbulence type="fractalNoise" baseFrequency="0.4" numOctaves="2" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/>
+  </filter>
+</svg>
 
-<nav>
-  <div class="brand">
-    <img src="logo.png" alt="$SFROG">
-    <span>$SFROG</span>
+<div class="crt" aria-hidden="true"></div>
+
+<header class="strip">
+  <div class="strip-row">
+    <span class="callsign">SFROG <b>/ MISSION CONTROL</b></span>
+    <span class="clock" id="utcClock">--:--:-- UTC</span>
+    <span><span class="lamp" id="caLamp">CA: TBA</span>&nbsp;&nbsp;<span class="chain">CHAIN 4663 · ROBINHOOD</span></span>
   </div>
-  <ul>
-    <li><a href="#about">About</a></li>
-    <li><a href="#timeline">Lore</a></li>
-    <li><a href="#tokenomics">Tokenomics</a></li>
-    <li><a href="#buy">How to Buy</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#faq">FAQ</a></li>
-  </ul>
-  <a href="#buy" class="buy-now">Buy $SFROG</a>
-</nav>
-
-<header class="hero">
-  <img id="heroLogo" class="hero-logo" src="logo.png" alt="Smokin Frog Logo">
-  <h1><span class="dollar">$</span>SFROG</h1>
-  <p class="subtitle">SMOKIN FROG</p>
-  <p class="by">by Matt Furie &middot; est. 2008</p>
-  <p class="tagline">
-    pepe's older, blazed cousin from <em>boy's club</em>
-    finally hopped on chain. red eyes. rolled tight. chill vibes only.
-  </p>
-  <div class="hero-buttons">
-    <a href="#buy" class="btn btn-pink">BUY NOW</a>
-    <a href="https://dexscreener.com/ethereum/0x14f8a94F063C568CA6aE2eAE9DA6b12C092687dC" target="_blank" rel="noopener" class="btn btn-green">CHART</a>
-    <a href="https://t.me/smokinfrogman" target="_blank" rel="noopener" class="btn btn-tg">TELEGRAM</a>
+  <div class="ticker" aria-hidden="true">
+    <div class="ticker-track" id="tickerTrack"></div>
   </div>
 </header>
 
-<div class="ticker">
-  <div class="ticker-track">
-    <span>$SFROG</span><span class="dot">&bull;</span>
-    <span>SMOKIN SINCE 2008</span><span class="dot">&bull;</span>
-    <span>BY MATT FURIE</span><span class="dot">&bull;</span>
-    <span>0 / 0 TAX</span><span class="dot">&bull;</span>
-    <span>LP BURNED</span><span class="dot">&bull;</span>
-    <span>RED EYES ONLY</span><span class="dot">&bull;</span>
-    <span>PEPE'S BLAZED COUSIN</span><span class="dot">&bull;</span>
-    <span>DIAMOND HANDS</span><span class="dot">&bull;</span>
-    <span>$SFROG</span><span class="dot">&bull;</span>
-    <span>SMOKIN SINCE 2008</span><span class="dot">&bull;</span>
-    <span>BY MATT FURIE</span><span class="dot">&bull;</span>
-    <span>0 / 0 TAX</span><span class="dot">&bull;</span>
-    <span>LP BURNED</span><span class="dot">&bull;</span>
-    <span>RED EYES ONLY</span><span class="dot">&bull;</span>
-    <span>PEPE'S BLAZED COUSIN</span><span class="dot">&bull;</span>
-    <span>DIAMOND HANDS</span><span class="dot">&bull;</span>
-  </div>
-</div>
+<div id="feed">
 
-<section id="about">
-  <h2 class="section-title">WHO IS SMOKIN FROG?</h2>
-  <div class="about-wrap">
-    <div class="about-image">
-      <img src="logo.png" alt="Smokin Frog">
-      <p>red eyes. rolled tight. legend status.</p>
-    </div>
-    <div class="about-text">
-      <h3>the original. the blazed one. the one they forgot.</h3>
-      <p>
-        in <strong>2008</strong>, before pepe became a meme empire,
-        matt furie drew a different frog. a cooler frog.
-        a frog with <em>two red eyes</em>, a fat joint, and zero anxiety.
-      </p>
-      <p>
-        his name was <strong>SMOKIN FROG</strong>. and for 17 years he sat in the
-        shadow of his viral cousin pepe. watching $PEPE moon.
-        watching $WOJAK pump. watching every furie character get tokenized except him.
-      </p>
-      <p>
-        well. <em>he's awake now.</em>
-      </p>
-      <p>
-        $SFROG isn't another generic frog cash grab. this is <strong>canon</strong>.
-        same artist. same universe. same boy's club lineage as pepe, fefe and hoppy.
-        just stonier.
-      </p>
-    </div>
-  </div>
-
-  <p class="lore-quote">
-    pepe felt good man. smokin frog felt <em style="font-style:italic;color:var(--weed-pink)">better</em>, man.
-  </p>
-</section>
-
-<section id="timeline">
-  <h2 class="section-title">THE FROG TIMELINE</h2>
-  <div class="timeline-wrap">
-    <div class="timeline-img-wrap">
-      <img src="1.png" alt="Frog Timeline by Matt Furie">
-    </div>
-    <p class="timeline-caption">
-      from matt furie's own hand. <strong>2004 hoppy</strong> &middot; <strong>2005 pepe</strong> &middot;
-      <strong style="color:var(--frog-yellow)">2008 smokin frog</strong> &middot; <strong>2020 fefe</strong>.
-      <br>this isn't fan art. this is canon. and now it's onchain.
+<main class="console">
+  <div class="console-left">
+    <h1 class="wordmark"><small>T-MINUS UNKNOWN · PAD OCCUPIED <span style="white-space:nowrap">SINCE 2008</span></small>SMOKIN FROG IS GO.</h1>
+    <p class="hero-sub">
+      matt furie's 2008 chain-smoker, back on the pad. launching on <b>pools.trade</b>
+      — the new launchpad from uniswap — on <b>robinhood chain</b>, landing in <b>uniswap v4</b>.
+      <em>ca drops at t-0 on official comms only.</em>
     </p>
-  </div>
-</section>
-
-<section id="tokenomics">
-  <h2 class="section-title">TOKENOMICS</h2>
-  <div class="tokenomics-grid">
-    <div class="tok-card">
-      <h4>420.69B</h4>
-      <p>total supply</p>
-    </div>
-    <div class="tok-card">
-      <h4>0 / 0</h4>
-      <p>buy / sell tax</p>
-    </div>
-    <div class="tok-card">
-      <h4>100%</h4>
-      <p>liquidity burned</p>
-    </div>
-    <div class="tok-card">
-      <h4>RENOUNCED</h4>
-      <p>contract ownership</p>
-    </div>
-    <div class="tok-card">
-      <h4>FAIR</h4>
-      <p>no presale. no team allocation.</p>
-    </div>
-    <div class="tok-card">
-      <h4>100%</h4>
-      <p>community owned</p>
-    </div>
+    <pre class="bootlog" id="bootlog"><span class="tag">CONSOLE 01 · BOOT SEQUENCE</span></pre>
+    <a class="key" href="https://t.me/smokinfrogman" target="_blank" rel="noopener">OPEN COMMS CHANNEL<span class="key-url"> → t.me/smokinfrogman</span></a>
   </div>
 
-  <div class="contract-box">
-    <div class="label">CONTRACT ADDRESS</div>
-    <div class="ca" id="caBox" title="click to copy">0x14f8a94F063C568CA6aE2eAE9DA6b12C092687dC</div>
-    <div class="copy-hint">click address to copy. always verify on the official channels.</div>
+  <div class="padcam">
+    <span class="screw tl"></span><span class="screw tr"></span><span class="screw bl"></span><span class="screw br"></span>
+    <div class="cam-head">
+      <span>PAD CAM 01 <span class="rec">REC</span></span>
+      <span class="stamp-time" id="camTime">0000-00-00 00:00:00Z</span>
+    </div>
+    <div class="cam-screen">
+      <img src="logo-hero.webp" alt="Smokin Frog on the launch pad — Matt Furie's 2008 chain-smoking frog, red eyes, yellow tee, lit cigarette" width="900" height="900">
+      <div class="wisp" aria-hidden="true"></div>
+      <div class="wisp two" aria-hidden="true"></div>
+      <div class="cam-lines" aria-hidden="true"></div>
+    </div>
+    <div class="cam-foot">SUBJECT: S. FROG · STATUS: LIT · THREAT LEVEL: CHILL</div>
   </div>
-</section>
+</main>
 
-<section id="buy">
-  <h2 class="section-title">HOW TO BUY</h2>
-  <div class="buy-grid">
-    <div class="buy-step">
-      <div class="num">1</div>
-      <h4>GET A WALLET</h4>
-      <p>download metamask or any web3 wallet. write your seed phrase on paper. yes, paper. don't be stupid.</p>
+<section id="briefing">
+  <div class="sec-label">DOC / 001</div>
+  <h2 class="sec-title">MISSION BRIEFING</h2>
+  <div class="briefing-wrap">
+    <div>
+      <div class="memo">
+        <span class="tape l" aria-hidden="true"></span><span class="tape r" aria-hidden="true"></span>
+        <div class="memo-head">
+          <div class="doc-meta">
+            <b>MEMORANDUM · BRIEFING 001</b><br>
+            re: the frog that never put it down<br>
+            classification: canon
+          </div>
+          <div class="barcode" aria-hidden="true">SFROG-420-69B</div>
+        </div>
+        <h3>SUBJECT: SMOKIN FROG — SECOND PRINTING</h3>
+        <p>
+          in <b>2008</b>, matt furie drew a frog with two red eyes and a lit cigarette
+          into the <b>boy's club</b> universe. his name was smokin frog. he is on the
+          artist's own frog timeline, between pepe (2005) and fefe (2020). this is not
+          fan lore. <span class="hl">it is the published record.</span>
+        </p>
+        <p>
+          pepe got tokenized and famous. the frog holding the cigarette never did.
+          effective immediately, that oversight is corrected:
+          <b>$SFROG relaunches on pools.trade — the new launchpad from uniswap — on
+          robinhood chain, and trading lands in uniswap v4.</b>
+        </p>
+        <hr>
+        <p class="sig">
+          filed by the $SFROG community. community memecoin — no endorsement by matt
+          furie claimed. the 2008 receipt speaks for itself.
+        </p>
+        <div class="stamp">SECOND PRINTING<br>EST. 2008</div>
+      </div>
+      <p class="memo-caption">doc 001 — filed by the $SFROG community. taped to console by unknown operator.</p>
     </div>
-    <div class="buy-step">
-      <div class="num">2</div>
-      <h4>FUND IT WITH ETH</h4>
-      <p>buy some ETH on coinbase, binance or your favorite cex. send it to your wallet. wait the 2 minutes. breathe.</p>
-    </div>
-    <div class="buy-step">
-      <div class="num">3</div>
-      <h4>HEAD TO UNISWAP</h4>
-      <p>connect your wallet to uniswap. paste the $SFROG contract address. the one above. the only real one.</p>
-    </div>
-    <div class="buy-step">
-      <div class="num">4</div>
-      <h4>SWAP &amp; SMOKE</h4>
-      <p>swap your ETH for $SFROG. set slippage to 1-2%. confirm. light up. enjoy the ride.</p>
-    </div>
-  </div>
-</section>
-
-<section id="roadmap">
-  <h2 class="section-title">ROADMAP</h2>
-  <div class="roadmap">
-    <div class="phase">
-      <h4>PHASE 1 / SPARK IT</h4>
-      <ul>
-        <li class="done">stealth launch on uniswap</li>
-        <li class="done">liquidity locked and burned</li>
-        <li class="done">contract renounced</li>
-        <li class="done">website live (you're on it)</li>
-        <li>2,000 holders</li>
-      </ul>
-    </div>
-    <div class="phase">
-      <h4>PHASE 2 / INHALE</h4>
-      <ul>
-        <li>cmc and coingecko listings</li>
-        <li>dextools trending</li>
-        <li>10,000 holders</li>
-        <li>first cex listing</li>
-        <li>meme contest with prize pool</li>
-      </ul>
-    </div>
-    <div class="phase">
-      <h4>PHASE 3 / EXHALE</h4>
-      <ul>
-        <li>tier 1 cex listings</li>
-        <li>$SFROG merch drop</li>
-        <li>nft collection: smokin frog originals</li>
-        <li>50,000 holders</li>
-        <li>partnerships with the broader furie-verse</li>
-      </ul>
-    </div>
-    <div class="phase">
-      <h4>PHASE 4 / STRATOSPHERE</h4>
-      <ul>
-        <li>top 100 marketcap on coingecko</li>
-        <li>billboard in times square (the meme coin tradition)</li>
-        <li>smokin frog the animated short</li>
-        <li>nothing. literally nothing. it's a memecoin.</li>
-      </ul>
+    <div class="briefing-side">
+      <p class="quote">pepe felt good, man.<br>smokin frog felt <span class="dim">better,</span> man.</p>
+      <p>
+        the flex, spelled out: most memecoins invent a backstory. this one has a
+        <b>publication date</b>. and instead of sneaking out of a token factory, it
+        rolls out on <b>uniswap's own launchpad</b>, on robinhood chain.
+      </p>
+      <p>
+        red eyes. rolled tight. eighteen years of patience.
+      </p>
     </div>
   </div>
 </section>
 
-<section id="memes">
-  <h2 class="section-title">CERTIFIED MEMES</h2>
-  <div class="meme-gallery">
-    <div class="meme-card">
-      <div class="text">RED EYES</div>
-      <div class="sub">no fear</div>
+<section id="archive">
+  <div class="sec-label">FEED / 02</div>
+  <h2 class="sec-title">ARCHIVE — FURIE FROG TIMELINE</h2>
+  <div class="archive-wrap">
+    <div class="monitor">
+      <div class="mon-head"><span>ARCHIVE MONITOR · SCAN 1/1</span><span class="ok">SIGNAL OK</span></div>
+      <div class="mon-screen">
+        <img src="timeline.webp" alt="Matt Furie's Frog Timeline: Hoppy/Mystery 2004, Pepe 2005, Smokin Frog 2008, Fefe 2020" width="966" height="598" loading="lazy">
+        <div class="cam-lines" aria-hidden="true"></div>
+      </div>
     </div>
-    <div class="meme-card">
-      <div class="text">ROLLED IN 2008</div>
-      <div class="sub">still burning</div>
-    </div>
-    <div class="meme-card">
-      <div class="text">PEPE'S COUSIN</div>
-      <div class="sub">cooler twin</div>
-    </div>
-    <div class="meme-card">
-      <div class="text">CANON AS F*CK</div>
-      <div class="sub">ask matt</div>
-    </div>
-    <div class="meme-card">
-      <div class="text">DIAMOND HANDS</div>
-      <div class="sub">paper hands cope</div>
-    </div>
-    <div class="meme-card">
-      <div class="text">TO THE MOON</div>
-      <div class="sub">passing pepe on the way</div>
-    </div>
-  </div>
-</section>
-
-<section id="faq">
-  <h2 class="section-title">FAQ</h2>
-  <div class="faq-wrap">
-    <div class="faq-item">
-      <button class="faq-q">is this a real matt furie character? <span class="arrow">&#9660;</span></button>
-      <div class="faq-a"><p>yes. smokin frog appears in matt furie's official "frog timeline" alongside hoppy (2004), pepe (2005), and fefe (2020). he debuted in 2008 within the boy's club universe. this token is a community celebration of that character.</p></div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-q">is $SFROG affiliated with matt furie? <span class="arrow">&#9660;</span></button>
-      <div class="faq-a"><p>$SFROG is a community memecoin inspired by the smokin frog character. like every other furie-inspired memecoin you know and love, this is a community project. no official endorsement is claimed.</p></div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-q">is the contract safe? <span class="arrow">&#9660;</span></button>
-      <div class="faq-a"><p>liquidity is burned. contract is renounced. zero buy/sell tax. nothing the team can rug. always verify the contract address through official channels before buying.</p></div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-q">why should i buy this instead of $PEPE? <span class="arrow">&#9660;</span></button>
-      <div class="faq-a"><p>you shouldn't choose. you should buy both and stop being financially rigid. but smokin frog is at marketcap zero and pepe is at billions. do the math, anon.</p></div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-q">will this make me rich? <span class="arrow">&#9660;</span></button>
-      <div class="faq-a"><p>no. it's a memecoin. it's gambling with frogs. only put in what you can afford to light on fire. dyor. nfa.</p></div>
-    </div>
-    <div class="faq-item">
-      <button class="faq-q">where do i find the community? <span class="arrow">&#9660;</span></button>
-      <div class="faq-a"><p>telegram and twitter/x. links in the footer. join the chat. post memes. don't ask "wen moon".</p></div>
+    <div>
+      <table class="timeline">
+        <caption>RECORDS RETRIEVED: 4</caption>
+        <thead>
+          <tr><th scope="col">YEAR</th><th scope="col">SUBJECT</th><th scope="col">STATUS</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>2004</td><td>HOPPY / MYSTERY</td><td>archived</td></tr>
+          <tr><td>2005</td><td>PEPE</td><td>tokenized, famous</td></tr>
+          <tr class="here"><td>2008</td><td>SMOKIN FROG</td><td>← YOU ARE HERE<span class="cur"></span></td></tr>
+          <tr><td>2020</td><td>FEFE</td><td>archived</td></tr>
+        </tbody>
+      </table>
+      <p class="archive-note">
+        straight from matt furie's own frog timeline. <b>same artist, same universe,
+        same lineage as pepe</b> — just stonier, and eighteen years more patient.
+      </p>
     </div>
   </div>
 </section>
 
-<section class="final-cta">
-  <h2>BLAZE IT.<br>HODL IT.<br>$SFROG.</h2>
-  <p>17 years late. infinitely cooler. red eyes forever.</p>
-  <div class="hero-buttons" style="justify-content:center;">
-    <a href="https://app.uniswap.org/#/swap?outputCurrency=0x14f8a94F063C568CA6aE2eAE9DA6b12C092687dC" target="_blank" rel="noopener" class="btn btn-pink">BUY ON UNISWAP</a>
-    <a href="https://t.me/smokinfrogman" target="_blank" rel="noopener" class="btn btn-tg">JOIN TELEGRAM</a>
+<section id="venue">
+  <div class="sec-label">FLIGHT RECORD / 03</div>
+  <h2 class="sec-title">THE PAD: POOLS.TRADE × ROBINHOOD CHAIN</h2>
+
+  <div class="venue-line">
+    <div class="big">V2 · V3 · <span class="lime">V4</span> · X</div>
+    <p class="cap">uniswap v2, v3, v4 and uniswapx — live on robinhood chain (id 4663) since july 2, 2026. uniswap is the chain's primary public amm. <span class="venue-src">src: blog.uniswap.org</span></p>
+  </div>
+
+  <div class="venue-line">
+    <div class="big">MARKET <span class="lime">Nº2</span></div>
+    <p class="cap">robinhood chain is uniswap's second-largest market after ethereum. <span class="venue-src">src: press, aug 2026</span></p>
+  </div>
+
+  <div class="venue-line">
+    <div class="big"><span class="lime">4/5</span> MEMECOINS</div>
+    <p class="cap">roughly four-fifths of the chain's dex volume is memecoins. the frog is not lost. the frog is home. <span class="venue-src">src: press, aug 2026</span></p>
+  </div>
+
+  <div class="venue-line">
+    <div class="big">PAD STATUS: <span class="lime" id="padStatus">DEPLOYING…</span></div>
+    <p class="cap"><a href="https://pools.trade" target="_blank" rel="noopener">pools.trade</a> — "something new" · "coming soon from uniswap". $SFROG launches there. no date promised; the pad opens when it opens. watch official comms.</p>
+  </div>
+</section>
+
+<section id="flightdata">
+  <div class="sec-label">TELEMETRY / 04</div>
+  <h2 class="sec-title">FLIGHT DATA</h2>
+
+  <div class="supply">420,690,000,000</div>
+  <div class="supply-cap">TOTAL SUPPLY · $SFROG</div>
+
+  <div class="breakers">
+    <div class="breaker on">
+      <span class="lamp-dot"></span>
+      <span class="track"><span class="lever"></span></span>
+      <span class="blabel">FAIR LAUNCH<span class="state">[ ARMED ]</span></span>
+    </div>
+    <div class="breaker off">
+      <span class="lamp-dot"></span>
+      <span class="track"><span class="lever"></span></span>
+      <span class="blabel">PRESALE<span class="state">[ NONE ]</span></span>
+    </div>
+    <div class="breaker off">
+      <span class="lamp-dot"></span>
+      <span class="track"><span class="lever"></span></span>
+      <span class="blabel">TEAM ALLOCATION<span class="state">[ NONE ]</span></span>
+    </div>
+  </div>
+
+  <div class="scanlog">
+SCAN: presale ......... <span class="nf">NOT FOUND</span><br>
+SCAN: team alloc ...... <span class="nf">NOT FOUND (no reward)</span><br>
+SCAN: supply .......... <span class="ok">420,690,000,000 OK</span><br>
+SCAN: vibes ........... <span class="ok">IMMACULATE</span>
+  </div>
+</section>
+
+<section id="preflight">
+  <div class="sec-label">PROCEDURE / 05</div>
+  <h2 class="sec-title">PRE-FLIGHT CHECKLIST</h2>
+  <ul class="checklist">
+    <li>
+      <span class="t">T-4</span><span class="box">[x]</span>
+      <span class="step"><b>GET AN EVM WALLET.</b> metamask, rabby, whatever you trust. seed phrase on paper. yes, paper.</span>
+    </li>
+    <li>
+      <span class="t">T-3</span><span class="box">[x]</span>
+      <span class="step"><b>GET ETH ONTO ROBINHOOD CHAIN.</b> chain id 4663, gas is ETH. add the network, fund the wallet, breathe.</span>
+    </li>
+    <li class="pend">
+      <span class="t">T-2</span><span class="box">[ ]</span>
+      <span class="step"><b>OPEN <a href="https://pools.trade" target="_blank" rel="noopener">POOLS.TRADE</a>.</b> uniswap's new launchpad. the pad is live when it's live.</span>
+    </li>
+    <li class="pend">
+      <span class="t">T-1</span><span class="box">[ ]</span>
+      <span class="step"><b>VERIFY THE CA.</b> against <a href="https://t.me/smokinfrogman" target="_blank" rel="noopener">t.me/smokinfrogman</a> and <a href="https://x.com/smokinfrogeth" target="_blank" rel="noopener">x.com/smokinfrogeth</a> only. everything else is counterfeit.</span>
+    </li>
+    <li class="pend">
+      <span class="t">T-0</span><span class="box">[ ]</span>
+      <span class="step"><b>APE RESPONSIBLY.</b> your position lands in uniswap v4. exhale.</span>
+    </li>
+  </ul>
+</section>
+
+<section id="security">
+  <div class="sec-label">NOTICE / 06</div>
+  <h2 class="sec-title">SECURITY NOTICE <span class="amber">— READ BEFORE APING</span></h2>
+  <div class="hazard">
+    <div class="hazard-inner">
+      <h3 id="caTitle">CONTRACT ADDRESS: TBA — DROPS AT T-0</h3>
+      <div class="ca-row">
+        <samp class="ca-field" id="caField">0x????????????????????????????????????????</samp>
+        <button class="copy-key" id="copyKey" disabled>AWAITING T-0</button>
+      </div>
+      <p class="warn">
+        the contract address will be posted at launch on
+        <a href="https://t.me/smokinfrogman" target="_blank" rel="noopener">t.me/smokinfrogman</a> and
+        <a href="https://x.com/smokinfrogeth" target="_blank" rel="noopener">x.com/smokinfrogeth</a>,
+        and this console updates the moment it does. any address circulating before then is a scam.
+      </p>
+      <p class="counterfeit">[!] IF YOU READ THE CA ANYWHERE ELSE FIRST, IT'S FAKE. BEWARE OF COUNTERFEIT EDITIONS.</p>
+    </div>
   </div>
 </section>
 
 <footer>
-  <img src="logo.png" alt="$SFROG">
-  <div class="socials">
-    <a href="https://x.com/smokinfrogeth" target="_blank" rel="noopener">TWITTER</a>
-    <a href="https://t.me/smokinfrogman" target="_blank" rel="noopener">TELEGRAM</a>
-    <a href="https://app.uniswap.org/#/swap?outputCurrency=0x14f8a94F063C568CA6aE2eAE9DA6b12C092687dC" target="_blank" rel="noopener">UNISWAP</a>
-    <a href="https://www.dextools.io/app/en/ether/pair-explorer/0x14f8a94F063C568CA6aE2eAE9DA6b12C092687dC" target="_blank" rel="noopener">DEXTOOLS</a>
-    <a href="https://dexscreener.com/ethereum/0x14f8a94F063C568CA6aE2eAE9DA6b12C092687dC" target="_blank" rel="noopener">DEXSCREENER</a>
+  <div class="comms">
+    <div class="sec-label">COMMS / 07</div>
+    <h2 class="sec-title">CHANNELS</h2>
+    <div class="freq">
+      <span class="band">FREQ 01 · TG</span>
+      <a href="https://t.me/smokinfrogman" target="_blank" rel="noopener">t.me/smokinfrogman</a>
+      <span class="desc">— main channel. memes, launch calls, no "wen moon".</span>
+    </div>
+    <div class="freq">
+      <span class="band">FREQ 02 · X</span>
+      <a href="https://x.com/smokinfrogeth" target="_blank" rel="noopener">x.com/smokinfrogeth</a>
+      <span class="desc">— announcements. the CA drops here and on TG. nowhere else.</span>
+    </div>
+    <div class="freq">
+      <span class="band">FREQ 03 · PAD</span>
+      <a href="https://pools.trade" target="_blank" rel="noopener">pools.trade</a>
+      <span class="desc">— the launchpad. from uniswap, on robinhood chain.</span>
+    </div>
+
+    <p class="smallprint">
+      $SFROG is a community-driven meme token with no intrinsic value and no expectation
+      of financial return. it is gambling with frogs. only commit what you can afford to
+      light on fire. <b>not affiliated with, or endorsed by, matt furie, uniswap labs,
+      pools.trade, robinhood or robinhood chain.</b> smokin frog character © matt furie —
+      this site is an unofficial community celebration of a canon 2008 frog. do your own
+      research. 100% frog. do not iron. do not rug.
+    </p>
+    <p class="signoff">SMOKE 'EM IF YOU GOT 'EM · EST. 2008 · BOY'S CLUB UNIVERSE</p>
   </div>
-  <p class="disclaimer">
-    $SFROG is a community-driven meme token with no intrinsic value or expectation of financial return.
-    this is not financial advice. cryptocurrency is highly volatile. do your own research before purchasing any token.
-    smokin frog character &copy; matt furie. this site is an unofficial community celebration.
-  </p>
-  <p class="copyright">made by the $SFROG community &middot; 2008 forever</p>
+  <div class="burnin" aria-hidden="true">$SFROG</div>
 </footer>
 
+</div><!-- /#feed -->
+
 <script>
-  // FAQ toggle
-  document.querySelectorAll('.faq-q').forEach(btn => {
-    btn.addEventListener('click', () => {
-      btn.parentElement.classList.toggle('open');
+  // ======================================================================
+  // MISSION CONTROL — launch-day flip lives here and only here.
+  // At T-0: set CA to the contract address string and STATUS to 'LIVE'.
+  // Everything else on the page updates itself.
+  // ======================================================================
+  const MISSION = {
+    CA: null,                       // e.g. '0x1234...abcd' at T-0
+    STATUS: 'DEPLOYING…',           // 'DEPLOYING…' -> 'LIVE'
+    TG: 'https://t.me/smokinfrogman',
+    X: 'https://x.com/smokinfrogeth',
+    PAD: 'https://pools.trade'
+  };
+
+  const $ = (id) => document.getElementById(id);
+
+  // ---- UTC clock + pad-cam timestamp ----
+  function tick() {
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, '0');
+    $('utcClock').textContent =
+      p(d.getUTCHours()) + ':' + p(d.getUTCMinutes()) + ':' + p(d.getUTCSeconds()) + ' UTC';
+    $('camTime').textContent =
+      d.getUTCFullYear() + '-' + p(d.getUTCMonth() + 1) + '-' + p(d.getUTCDate()) +
+      ' ' + p(d.getUTCHours()) + ':' + p(d.getUTCMinutes()) + ':' + p(d.getUTCSeconds()) + 'Z';
+  }
+  tick();
+  setInterval(tick, 1000);
+
+  // ---- ticker ----
+  const tickerLines = [
+    'STATUS: ' + MISSION.STATUS,
+    'PAD: POOLS.TRADE [UNISWAP]',
+    'CHAIN: ROBINHOOD · ID 4663 · GAS: ETH',
+    'DESTINATION: UNISWAP V4',
+    'SUPPLY: 420,690,000,000 $SFROG',
+    MISSION.CA ? 'CA: LIVE — VERIFY ON OFFICIAL COMMS' : 'CA: TBA — TRUST ONLY OFFICIAL COMMS',
+    'CANON SINCE 2008 · BOY\'S CLUB UNIVERSE',
+    'FAIR LAUNCH · NO PRESALE · NO TEAM BAG',
+    '[BRIEFING]#briefing', '[ARCHIVE]#archive', '[THE PAD]#venue',
+    '[FLIGHT DATA]#flightdata', '[PRE-FLIGHT]#preflight', '[SECURITY]#security'
+  ];
+  // duplicate track content for a seamless -50% loop
+  function cloneHalf(track) {
+    const children = Array.from(track.children);
+    children.forEach((c) => track.appendChild(c.cloneNode(true)));
+    return null;
+  }
+  (function () {
+    const track = $('tickerTrack');
+    tickerLines.forEach((line) => {
+      const span = document.createElement('span');
+      const m = line.match(/^\[(.+)\](#.+)$/);
+      if (m) {
+        const a = document.createElement('a');
+        a.href = m[2];
+        a.textContent = '[' + m[1] + ']';
+        a.tabIndex = -1; // ticker is aria-hidden; keep its links out of the tab order
+        span.appendChild(a);
+      } else if (/^CA:/.test(line)) {
+        span.className = 'hot';
+        span.textContent = line;
+      } else {
+        span.textContent = line;
+      }
+      track.appendChild(span);
+      const sep = document.createElement('span');
+      sep.className = 'sep';
+      sep.textContent = '//';
+      track.appendChild(sep);
     });
-  });
+    cloneHalf(track);
+    // ultra-wide screens: keep duplicating until the -50% loop point is off-screen
+    let guard = 0;
+    while (track.scrollWidth < window.innerWidth * 2 && guard++ < 3) cloneHalf(track);
+  })();
 
-  // Click hero logo for smoke puff
-  const heroLogo = document.getElementById('heroLogo');
-  heroLogo.addEventListener('click', () => {
-    const rect = heroLogo.getBoundingClientRect();
-    for (let i = 0; i < 4; i++) {
-      const puff = document.createElement('div');
-      puff.className = 'smoke-puff';
-      puff.style.left = (rect.left + rect.width/2 + (Math.random()*60 - 30)) + 'px';
-      puff.style.top  = (rect.top  + rect.height/2 + (Math.random()*40 - 20)) + 'px';
-      document.body.appendChild(puff);
-      setTimeout(() => puff.remove(), 1200);
+  // ---- boot log typewriter ----
+  const bootLines = [
+    '> init sesh .......... OK',
+    '> furie archive ...... 2008 · boy\'s club',
+    '> pad ................ pools.trade [UNISWAP]',
+    '> chain .............. robinhood 4663 · gas: ETH',
+    '> destination ........ uniswap v4',
+    '> STATUS: ' + MISSION.STATUS.replace('…', '')
+  ];
+  (function bootSequence() {
+    const log = $('bootlog');
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const body = document.createElement('span');
+    log.appendChild(body);
+    const cursor = document.createElement('span');
+    cursor.className = 'cursor';
+    log.appendChild(cursor);
+
+    if (reduced) {
+      body.textContent = bootLines.join('\n');
+      return;
     }
-  });
+    let li = 0, ci = 0, out = '';
+    (function type() {
+      if (li >= bootLines.length) return; // last line never resolves; cursor keeps blinking
+      const line = bootLines[li];
+      if (ci < line.length) {
+        out += line[ci++];
+        body.textContent = out;
+        const last = li === bootLines.length - 1;
+        setTimeout(type, last ? 90 : 18 + Math.random() * 24);
+      } else if (li < bootLines.length - 1) {
+        out += '\n';
+        li++; ci = 0;
+        setTimeout(type, 260 + Math.random() * 300);
+      }
+      // deliberately: when the final line finishes typing, nothing completes it.
+    })();
+  })();
 
-  // Copy contract address
-  const ca = document.getElementById('caBox');
-  ca.addEventListener('click', () => {
-    const text = ca.textContent.trim();
-    navigator.clipboard.writeText(text).then(() => {
-      const original = ca.textContent;
-      ca.textContent = 'COPIED';
-      ca.style.color = 'var(--frog-yellow)';
-      setTimeout(() => {
-        ca.textContent = original;
-        ca.style.color = '';
-      }, 1400);
-    }).catch(() => {});
-  });
+  // ---- launch-day flip ----
+  (function applyMission() {
+    const lamp = $('caLamp');
+    const field = $('caField');
+    const key = $('copyKey');
+    const title = $('caTitle');
+    $('padStatus').textContent = MISSION.STATUS;
+    if (!MISSION.CA) return;
+
+    lamp.textContent = 'CA: LIVE';
+    lamp.classList.add('live');
+    title.textContent = 'CONTRACT ADDRESS — CONFIRMED AT T-0';
+    field.textContent = MISSION.CA;
+    field.classList.add('live');
+    key.textContent = 'COPY CA';
+    key.disabled = false;
+    key.classList.add('live');
+    key.addEventListener('click', async () => {
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          await navigator.clipboard.writeText(MISSION.CA);
+        } else {
+          const range = document.createRange();
+          range.selectNodeContents(field);
+          const sel = getSelection();
+          sel.removeAllRanges();
+          sel.addRange(range);
+          if (!document.execCommand('copy')) throw new Error('copy failed');
+          sel.removeAllRanges();
+        }
+        key.textContent = 'COPIED ✓';
+      } catch (e) {
+        key.textContent = 'SELECT + COPY MANUALLY';
+      }
+      setTimeout(() => { key.textContent = 'COPY CA'; }, 1600);
+    });
+  })();
 </script>
 </body>
 </html>
