@@ -481,6 +481,13 @@
     justify-content: space-between;
   }
   .monitor .mon-head .ok { color: var(--phos); }
+  .monitor.wide { max-width: 980px; }
+  .mon-head .rec { color: var(--klaxon); }
+  .mon-head .rec::after {
+    content: '●';
+    margin-left: 0.35em;
+    animation: lampblink 1.1s steps(1) infinite;
+  }
   .mon-screen { position: relative; overflow: hidden; background: #000; }
   .mon-screen img { display: block; width: 100%; height: auto; }
   .mon-screen .cam-lines {
@@ -918,8 +925,26 @@
   </div>
 </section>
 
-<section id="archive">
+<section id="nightwatch">
   <div class="sec-label">FEED / 02</div>
+  <h2 class="sec-title">NIGHT WATCH — SUBJECT IN THE WILD</h2>
+  <div class="monitor wide">
+    <div class="mon-head"><span>SWAMP CAM 02 · NIGHT VISION · IR</span><span class="rec">REC</span></div>
+    <div class="mon-screen">
+      <img src="swampcam.webp" alt="Night-vision swamp cam footage: a frog with a lit cigarette sitting at the edge of a pond, eyes glowing in the infrared" width="1400" height="724" loading="lazy">
+      <div class="cam-lines" aria-hidden="true"></div>
+    </div>
+    <div class="cam-foot">LOCATION: [REDACTED SWAMP] · EYES GLOW ON IR: POSITIVE ID · MID-SMOKE, CALM</div>
+  </div>
+  <p class="archive-note" style="max-width:60ch">
+    field surveillance, pre-extraction. subject located at the edge of the pond,
+    unbothered, cigarette lit. extraction to the launch pad followed shortly after.
+    he did not resist. he asked for a lighter.
+  </p>
+</section>
+
+<section id="archive">
+  <div class="sec-label">FEED / 03</div>
   <h2 class="sec-title">ARCHIVE — FURIE FROG TIMELINE</h2>
   <div class="archive-wrap">
     <div class="monitor">
@@ -951,7 +976,7 @@
 </section>
 
 <section id="venue">
-  <div class="sec-label">FLIGHT RECORD / 03</div>
+  <div class="sec-label">FLIGHT RECORD / 04</div>
   <h2 class="sec-title">THE PAD: POOLS.TRADE × ROBINHOOD CHAIN</h2>
 
   <div class="venue-line">
@@ -976,7 +1001,7 @@
 </section>
 
 <section id="flightdata">
-  <div class="sec-label">TELEMETRY / 04</div>
+  <div class="sec-label">TELEMETRY / 05</div>
   <h2 class="sec-title">FLIGHT DATA</h2>
 
   <div class="supply">SUPPLY: [ TBA ]</div>
@@ -1009,7 +1034,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
 </section>
 
 <section id="preflight">
-  <div class="sec-label">PROCEDURE / 05</div>
+  <div class="sec-label">PROCEDURE / 06</div>
   <h2 class="sec-title">PRE-FLIGHT CHECKLIST</h2>
   <ul class="checklist">
     <li>
@@ -1036,7 +1061,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
 </section>
 
 <section id="security">
-  <div class="sec-label">NOTICE / 06</div>
+  <div class="sec-label">NOTICE / 07</div>
   <h2 class="sec-title">SECURITY NOTICE <span class="amber">— READ BEFORE APING</span></h2>
   <div class="hazard">
     <div class="hazard-inner">
@@ -1058,7 +1083,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
 
 <footer>
   <div class="comms">
-    <div class="sec-label">COMMS / 07</div>
+    <div class="sec-label">COMMS / 08</div>
     <h2 class="sec-title">CHANNELS</h2>
     <div class="freq">
       <span class="band">FREQ 01 · X</span>
@@ -1130,7 +1155,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     MISSION.CA ? 'CA: LIVE — VERIFY ON OFFICIAL COMMS' : 'CA: TBA — TRUST ONLY OFFICIAL COMMS',
     'CANON SINCE 2008 · BOY\'S CLUB UNIVERSE',
     'FAIR LAUNCH · NO PRESALE · NO TEAM BAG',
-    '[BRIEFING]#briefing', '[ARCHIVE]#archive', '[THE PAD]#venue',
+    '[BRIEFING]#briefing', '[NIGHT WATCH]#nightwatch', '[ARCHIVE]#archive', '[THE PAD]#venue',
     '[FLIGHT DATA]#flightdata', '[PRE-FLIGHT]#preflight', '[SECURITY]#security'
   ];
   // duplicate track content for a seamless -50% loop
