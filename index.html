@@ -157,6 +157,66 @@
   .ticker-track .hot { color: var(--amber); }
   @keyframes feedscroll { 0% { transform: translateX(0); } 100% { transform: translateX(-50%); } }
 
+  /* ============ TAB BAR — sections as console tabs ============ */
+  .tabbar {
+    display: flex;
+    border-top: 1px solid var(--phos-dim);
+    background: var(--console);
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .tabbar::-webkit-scrollbar { display: none; }
+  .tab {
+    flex: 1 0 auto;
+    font-family: 'VT323', monospace;
+    font-size: 1.15rem;
+    letter-spacing: 1.5px;
+    color: var(--phos-text);
+    background: transparent;
+    border: none;
+    border-right: 1px solid #0e1a0e;
+    padding: 0.5rem 1.1rem 0.45rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.08s, color 0.08s;
+  }
+  .tab:last-child { border-right: none; }
+  .tab:hover { color: var(--phos); background: #0a0f0a; }
+  .tab.active { color: var(--console); background: var(--lime); }
+
+  /* only the active tab's panels are shown; natural display is preserved */
+  [data-tab].tab-hidden { display: none !important; }
+
+  /* ============ RARITY FILTER TABS (hangar) ============ */
+  .rartabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin: 0.2rem 0 1.1rem;
+  }
+  .rartab {
+    font-family: 'VT323', monospace;
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+    color: var(--phos-text);
+    background: #0a0f0a;
+    border: 1px solid var(--phos-dim);
+    padding: 0.35rem 0.85rem;
+    cursor: pointer;
+  }
+  .rartab b { font-weight: 400; opacity: 0.65; margin-left: 0.35em; }
+  .rartab:hover { border-color: var(--lime); color: var(--lime); }
+  .rartab.active { background: var(--lime); color: var(--console); border-color: var(--lime); }
+  .rartab.active b { opacity: 0.85; }
+  .rartab[data-rar="4"].active { background: var(--klaxon); border-color: var(--klaxon); color: #fff; }
+  .rartab[data-rar="3"].active { background: var(--amber); border-color: var(--amber); }
+  /* rarity filtering: grid class rf-<tier> hides crates of other tiers */
+  .crate-grid.rf-0 .crate:not([data-tier="0"]),
+  .crate-grid.rf-1 .crate:not([data-tier="1"]),
+  .crate-grid.rf-2 .crate:not([data-tier="2"]),
+  .crate-grid.rf-3 .crate:not([data-tier="3"]),
+  .crate-grid.rf-4 .crate:not([data-tier="4"]) { display: none; }
+
   /* ============ THE CONSOLE (hero) ============ */
   .console {
     max-width: 1240px;
@@ -1174,11 +1234,19 @@
   <div class="ticker" aria-hidden="true">
     <div class="ticker-track" id="tickerTrack"></div>
   </div>
+  <nav class="tabbar" id="tabbar" aria-label="sections">
+    <button class="tab" data-go="mission">MISSION</button>
+    <button class="tab" data-go="frog">THE FROG</button>
+    <button class="tab" data-go="hangar">HANGAR</button>
+    <button class="tab" data-go="launch">THE PAD</button>
+    <button class="tab" data-go="security">SECURITY</button>
+    <button class="tab" data-go="comms">COMMS</button>
+  </nav>
 </header>
 
 <div id="feed">
 
-<main class="console">
+<main class="console" data-tab="mission">
   <div class="console-left">
     <h1 class="wordmark"><small>T-MINUS UNKNOWN · PAD OCCUPIED <span style="white-space:nowrap">SINCE 2008</span></small>SMOKIN FROG IS GO.</h1>
     <p class="hero-sub">
@@ -1206,7 +1274,7 @@
   </div>
 </main>
 
-<section id="briefing">
+<section id="briefing" data-tab="frog">
   <div class="sec-label">DOC / 001</div>
   <h2 class="sec-title">MISSION BRIEFING</h2>
   <div class="briefing-wrap">
@@ -1257,7 +1325,7 @@
   </div>
 </section>
 
-<section id="nightwatch">
+<section id="nightwatch" data-tab="frog">
   <div class="sec-label">FEED / 02</div>
   <h2 class="sec-title">NIGHT WATCH — SUBJECT IN THE WILD</h2>
   <div class="monitor wide">
@@ -1275,7 +1343,7 @@
   </p>
 </section>
 
-<section id="archive">
+<section id="archive" data-tab="frog">
   <div class="sec-label">FEED / 03</div>
   <h2 class="sec-title">ARCHIVE — FURIE FROG TIMELINE</h2>
   <div class="archive-wrap">
@@ -1309,7 +1377,7 @@
   </div>
 </section>
 
-<section id="hangar">
+<section id="hangar" data-tab="hangar">
   <div class="sec-label">CARGO / 04</div>
   <h2 class="sec-title">HOTBOX HANGAR — 99 ARTWORKS · 5 RARITY TIERS</h2>
 
@@ -1329,6 +1397,15 @@
     <span class="spacer"></span>
     <span class="stat" id="hgOperator"></span>
     <button class="wallet-key" id="hgConnect">CONNECT WALLET</button>
+  </div>
+
+  <div class="rartabs" id="rarTabs" role="tablist" aria-label="filter artworks by rarity">
+    <button class="rartab active" data-rar="all">ALL <b>99</b></button>
+    <button class="rartab" data-rar="0">COMMON <b>40</b></button>
+    <button class="rartab" data-rar="1">UNCOMMON <b>30</b></button>
+    <button class="rartab" data-rar="2">RARE <b>18</b></button>
+    <button class="rartab" data-rar="3">EPIC <b>8</b></button>
+    <button class="rartab" data-rar="4">LEGENDARY <b>3</b></button>
   </div>
 
   <div class="crate-grid" id="crateGrid"></div>
@@ -1382,7 +1459,7 @@
   </div>
 </dialog>
 
-<section id="venue">
+<section id="venue" data-tab="launch">
   <div class="sec-label">FLIGHT RECORD / 05</div>
   <h2 class="sec-title">THE PAD: POOLS.TRADE × ROBINHOOD CHAIN</h2>
 
@@ -1407,7 +1484,7 @@
   </div>
 </section>
 
-<section id="flightdata">
+<section id="flightdata" data-tab="launch">
   <div class="sec-label">TELEMETRY / 06</div>
   <h2 class="sec-title">FLIGHT DATA</h2>
 
@@ -1440,7 +1517,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
   </div>
 </section>
 
-<section id="preflight">
+<section id="preflight" data-tab="launch">
   <div class="sec-label">PROCEDURE / 07</div>
   <h2 class="sec-title">PRE-FLIGHT CHECKLIST</h2>
   <ul class="checklist">
@@ -1467,7 +1544,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
   </ul>
 </section>
 
-<section id="security">
+<section id="security" data-tab="security">
   <div class="sec-label">NOTICE / 08</div>
   <h2 class="sec-title">SECURITY NOTICE <span class="amber">— READ BEFORE APING</span></h2>
   <div class="hazard">
@@ -1488,7 +1565,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
   </div>
 </section>
 
-<footer>
+<footer data-tab="comms">
   <div class="comms">
     <div class="sec-label">COMMS / 09</div>
     <h2 class="sec-title">CHANNELS</h2>
@@ -1539,6 +1616,50 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
   };
 
   const $ = (id) => document.getElementById(id);
+
+  // ---- tab navigation: the site is split into tabs, not one long scroll ----
+  (function tabs() {
+    const bar = $('tabbar');
+    const panels = Array.prototype.slice.call(document.querySelectorAll('[data-tab]'));
+    const NAMES = ['mission', 'frog', 'hangar', 'launch', 'security', 'comms'];
+    function show(name) {
+      if (NAMES.indexOf(name) === -1) name = 'mission';
+      panels.forEach((p) => p.classList.toggle('tab-hidden', p.getAttribute('data-tab') !== name));
+      let activeBtn = null;
+      Array.prototype.forEach.call(bar.children, (b) => {
+        const on = b.getAttribute('data-go') === name;
+        b.classList.toggle('active', on);
+        if (on) activeBtn = b;
+      });
+      if (('#' + name) !== location.hash) history.replaceState(null, '', '#' + name);
+      window.scrollTo(0, 0);
+      // keep the active tab visible in a horizontally-scrolled bar (no page jump)
+      if (activeBtn && bar.scrollWidth > bar.clientWidth) {
+        bar.scrollLeft = activeBtn.offsetLeft - (bar.clientWidth - activeBtn.clientWidth) / 2;
+      }
+    }
+    bar.addEventListener('click', (e) => {
+      const b = e.target.closest('[data-go]');
+      if (b) show(b.getAttribute('data-go'));
+    });
+    // in-page hash links (ticker, etc.) jump to the owning tab instead of scrolling
+    document.addEventListener('click', (e) => {
+      const a = e.target.closest && e.target.closest('a[href^="#"]');
+      if (!a) return;
+      const id = a.getAttribute('href').slice(1);
+      if (!id) return;
+      const el = document.getElementById(id);
+      const panel = el && el.closest('[data-tab]');
+      if (panel) { e.preventDefault(); show(panel.getAttribute('data-tab')); }
+    });
+    window.addEventListener('hashchange', () => {
+      const h = location.hash.slice(1);
+      if (NAMES.indexOf(h) !== -1) show(h);
+    });
+    const initial = location.hash.slice(1);
+    show(NAMES.indexOf(initial) !== -1 ? initial : 'mission');
+    window.__sfrogShowTab = show; // let the hangar deep-link to itself if needed
+  })();
 
   // ---- UTC clock + pad-cam timestamp ----
   function tick() {
@@ -1816,6 +1937,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       for (let i = 1; i <= HANGAR.ARTS; i++) {
         const crate = document.createElement('div');
         crate.className = 'crate';
+        crate.id = 'crate-' + i;
         crate.innerHTML =
           '<img src="nft/thumb/' + i + '.webp" alt="Smokin Frog Hotbox #' + i + '" loading="lazy" width="420" height="420" data-view="' + i + '">' +
           '<div class="crate-row"><span>#' + i + '</span><span class="rarity" id="rar-' + i + '">—</span></div>' +
@@ -1831,7 +1953,13 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
         $('price-' + i).textContent = weiToEth(state.prices[i - 1]) + ' ETH';
         $('eds-' + i).textContent = edsText(i);
         const rar = $('rar-' + i);
-        if (state.loaded) { const m = tierMeta(i); rar.textContent = m.name; rar.className = 'rarity ' + m.cls; }
+        if (state.loaded) {
+          const m = tierMeta(i);
+          rar.textContent = m.name;
+          rar.className = 'rarity ' + m.cls;
+          const cr = $('crate-' + i);
+          if (cr) cr.dataset.tier = String(Number(state.tiers[i - 1]));
+        }
         const btn = $('mint-' + i);
         const soldOut = isSoldOut(i);
         btn.disabled = !armed || pending || soldOut;
@@ -2412,6 +2540,20 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     // ---- wiring ----
     buildGrid();
     refreshCards();
+
+    // rarity filter tabs: show only crates of the picked tier (or all)
+    let rarFilter = 'all';
+    function applyRarFilter() {
+      grid.className = 'crate-grid' + (rarFilter === 'all' ? '' : ' rf-' + rarFilter);
+    }
+    $('rarTabs').addEventListener('click', (ev) => {
+      const b = ev.target.closest('[data-rar]');
+      if (!b) return;
+      rarFilter = b.getAttribute('data-rar');
+      Array.prototype.forEach.call($('rarTabs').children, (x) => x.classList.toggle('active', x === b));
+      applyRarFilter();
+    });
+    applyRarFilter();
 
     // connected chip opens AppKit's account view (switch network / disconnect);
     // otherwise it starts a connection.
