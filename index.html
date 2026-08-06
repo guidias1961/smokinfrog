@@ -967,6 +967,9 @@
   .mint-key.ghost:hover { background: var(--phos-dim); color: var(--console); }
   /* ---- NFT DETAIL MODAL — the "clicking is beautiful" panel ---- */
   dialog.crate-view {
+    position: fixed;
+    inset: 0;
+    margin: auto; /* restore the centering the global `* { margin: 0 }` reset kills */
     border: 1px solid var(--phos-dim);
     background: #0b100b;
     color: var(--readout);
