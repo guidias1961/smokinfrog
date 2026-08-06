@@ -15,8 +15,10 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:image" content="https://smokinfrog-production.up.railway.app/social.jpg">
 <link rel="icon" type="image/png" href="favicon.png">
+<meta name="theme-color" content="#050805">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://esm.sh" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Workbench&text=SMOKINFRG%20O.&display=block">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&family=IBM+Plex+Mono:ital,wght@0,400;0,600;1,400&family=Libre+Barcode+128+Text&display=swap">
 <style>
@@ -963,45 +965,175 @@
   .key-row .mint-key { flex: 1; }
   .mint-key.ghost { color: var(--phos-text); border-color: var(--phos-dim); }
   .mint-key.ghost:hover { background: var(--phos-dim); color: var(--console); }
+  /* ---- NFT DETAIL MODAL — the "clicking is beautiful" panel ---- */
   dialog.crate-view {
-    background: #101410;
     border: 1px solid var(--phos-dim);
-    box-shadow: inset 0 0 0 2px #060906, 0 0 60px rgba(0,0,0,0.9);
-    padding: 10px;
-    max-width: min(92vw, 560px);
+    background: #0b100b;
     color: var(--readout);
+    padding: 0;
+    width: min(95vw, 900px);
+    max-height: min(93dvh, 780px);
+    box-shadow: 0 0 0 2px #060906, 0 0 80px rgba(0,0,0,0.95), 0 0 46px rgba(53,240,106,0.08);
+    overflow: hidden;
   }
-  dialog.crate-view::backdrop { background: rgba(2,4,2,0.85); }
-  dialog.crate-view img { width: 100%; height: auto; display: block; }
-  dialog.crate-view .crate-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-family: 'VT323', monospace;
-    font-size: 1.3rem;
-    padding: 0.6rem 2px 0.2rem;
-    color: var(--phos);
-    gap: 0.8rem;
+  dialog.crate-view::backdrop { background: rgba(2,4,2,0.84); backdrop-filter: blur(3px); }
+  dialog.crate-view[open] { animation: cvIn 0.18s ease-out; }
+  @keyframes cvIn {
+    from { opacity: 0; transform: translateY(10px) scale(0.985); }
+    to { opacity: 1; transform: none; }
   }
-  dialog.crate-view .mint-key { width: auto; padding: 0.4rem 1.4rem; }
-  .picker-list { display: flex; flex-direction: column; gap: 0.5rem; min-width: 260px; }
-  .picker-list button {
+  .cv-wrap {
+    display: grid;
+    grid-template-columns: minmax(0, 54fr) minmax(0, 46fr);
+    max-height: min(93dvh, 780px);
+  }
+  .cv-media {
+    position: relative;
+    background: #000;
+    min-height: 0;
     display: flex;
     align-items: center;
-    gap: 0.6rem;
+    justify-content: center;
+    border-right: 1px solid #14200f;
+  }
+  .cv-media img { display: block; width: 100%; height: 100%; max-height: min(93dvh, 780px); object-fit: contain; }
+  .cv-media .cam-lines {
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(to bottom, rgba(0,0,0,0.13) 0 2px, transparent 2px 5px);
+    pointer-events: none;
+  }
+  .cv-media .cv-chip {
+    position: absolute;
+    top: 10px; left: 10px;
     font-family: 'VT323', monospace;
-    font-size: 1.2rem;
-    letter-spacing: 1px;
-    padding: 0.5rem 0.8rem;
-    background: #0a0f0a;
+    font-size: 0.95rem;
+    letter-spacing: 1.5px;
+    color: var(--readout);
+    background: rgba(5,8,5,0.72);
+    border: 1px solid var(--phos-dim);
+    padding: 0.15rem 0.55rem;
+  }
+  .cv-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'VT323', monospace;
+    font-size: 2.1rem;
+    line-height: 1;
+    padding: 0.3rem 0.7rem 0.45rem;
+    background: rgba(5,8,5,0.74);
     color: var(--phos);
     border: 1px solid var(--phos-dim);
     cursor: pointer;
+    z-index: 2;
   }
-  .picker-list button:hover { border-color: var(--lime); color: var(--lime); }
-  .picker-list img { width: 22px; height: 22px; }
+  .cv-arrow:hover { color: var(--console); background: var(--lime); border-color: var(--lime); }
+  .cv-arrow.prev { left: 10px; }
+  .cv-arrow.next { right: 10px; }
+  .cv-panel {
+    padding: 1.4rem 1.4rem 1.3rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    overflow-y: auto;
+    position: relative;
+    min-width: 0;
+  }
+  .cv-close {
+    position: absolute;
+    top: 0.7rem; right: 0.9rem;
+    font-family: 'VT323', monospace;
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+    background: none;
+    border: none;
+    color: var(--phos-text);
+    cursor: pointer;
+    padding: 0.2rem 0.3rem;
+  }
+  .cv-close:hover { color: var(--klaxon); }
+  .cv-tag {
+    font-family: 'VT323', monospace;
+    font-size: 0.95rem;
+    letter-spacing: 3px;
+    color: var(--phos-text);
+    padding-right: 4rem;
+  }
+  .cv-title {
+    font-family: 'VT323', monospace;
+    font-size: clamp(1.9rem, 3.4vw, 2.6rem);
+    font-weight: 400;
+    color: var(--phos);
+    line-height: 1;
+    letter-spacing: 1px;
+  }
+  .cv-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    background: #14200f;
+    border: 1px solid var(--phos-dim);
+  }
+  .cv-stat { background: #0a0f0a; padding: 0.6rem 0.75rem; min-width: 0; }
+  .cv-stat .lbl {
+    display: block;
+    font-size: 0.68rem;
+    letter-spacing: 2px;
+    color: var(--phos-text);
+    margin-bottom: 0.2rem;
+  }
+  .cv-stat .val {
+    display: block;
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    color: var(--phos);
+    overflow-wrap: anywhere;
+  }
+  .cv-stat .val.price { color: var(--lime); }
+  .mint-key.cv-mint { width: 100%; font-size: 1.35rem; padding: 0.7rem 0.5rem; }
+  .cv-note { font-size: 0.78rem; color: var(--phos-text); line-height: 1.6; margin-top: auto; padding-top: 0.6rem; }
+  .cv-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem 1.3rem;
+    font-family: 'VT323', monospace;
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+  }
+  .cv-links a { color: var(--phos); }
+  .cv-links a:hover { color: var(--console); }
+
+  /* ============ RESPONSIVE — FULL PASS ============ */
+  img { max-width: 100%; }
+  .timeline-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+  @media (max-width: 760px) {
+    .cv-wrap { grid-template-columns: 1fr; overflow-y: auto; }
+    dialog.crate-view { width: min(95vw, 480px); }
+    .cv-media { border-right: none; border-bottom: 1px solid #14200f; }
+    .cv-media img { max-height: 46dvh; }
+    .cv-panel { overflow-y: visible; }
+    .cv-arrow { font-size: 1.6rem; padding: 0.2rem 0.5rem 0.35rem; }
+  }
+  @media (max-width: 700px) {
+    .strip-row { flex-wrap: wrap; row-gap: 0.15rem; }
+    .hazard-inner { padding: 1.3rem 1rem 1.2rem; }
+    .hazard-inner h3 { font-size: 1.32rem; }
+    table.timeline { font-size: 1.05rem; }
+    table.timeline td, table.timeline th { padding: 0.4rem 0.55rem; }
+    .briefing-side .quote { font-size: 1.3rem; }
+    .hangar-deck { font-size: 1.05rem; }
+    .hangar-deck .wallet-key { margin-top: 0.2rem; }
+    .cv-stats { grid-template-columns: 1fr; }
+  }
   @media (max-width: 480px) {
-    .crate-grid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); }
+    .crate-grid { grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 0.6rem; }
+    .sec-label { letter-spacing: 2px; }
+    .cv-panel { padding: 1.1rem 1rem 1.1rem; }
+    .hangar-deck { gap: 0.5rem 1rem; }
+    .hangar-deck .spacer { flex-basis: 100%; height: 0; }
+  }
+  @media (max-width: 360px) {
+    .crate-grid { grid-template-columns: 1fr 1fr; }
   }
 </style>
 </head>
@@ -1138,6 +1270,7 @@
       </div>
     </div>
     <div>
+      <div class="timeline-wrap">
       <table class="timeline">
         <caption>RECORDS RETRIEVED: 4</caption>
         <thead>
@@ -1150,6 +1283,7 @@
           <tr><td>2020</td><td>FEFE</td><td>archived</td></tr>
         </tbody>
       </table>
+      </div>
       <p class="archive-note">
         straight from matt furie's own frog timeline. <b>same artist, same universe,
         same lineage as pepe</b> — just stonier, and eighteen years more patient.
@@ -1199,17 +1333,34 @@
   </p>
 </section>
 
-<dialog class="crate-view" id="crateView">
-  <img id="cvImg" src="" alt="">
-  <div class="crate-row">
-    <span id="cvName">#—</span>
-    <span id="cvPrice">—</span>
-    <button class="mint-key" id="cvMint">MINT</button>
+<dialog class="crate-view" id="crateView" aria-label="artwork detail">
+  <div class="cv-wrap">
+    <div class="cv-media">
+      <span class="cv-chip" id="cvChip">ART #—</span>
+      <button class="cv-arrow prev" id="cvPrev" aria-label="previous artwork" tabindex="-1">&lt;</button>
+      <img id="cvImg" src="" alt="">
+      <button class="cv-arrow next" id="cvNext" aria-label="next artwork" tabindex="-1">&gt;</button>
+      <div class="cam-lines" aria-hidden="true"></div>
+    </div>
+    <div class="cv-panel">
+      <button class="cv-close" id="cvClose" aria-label="close">[ CLOSE ✕ ]</button>
+      <div class="cv-tag">HOTBOX · OPEN EDITION</div>
+      <h3 class="cv-title" id="cvName">HOTBOX #—</h3>
+      <div class="cv-stats">
+        <div class="cv-stat"><span class="lbl">MINT PRICE</span><span class="val price" id="cvPrice">—</span></div>
+        <div class="cv-stat"><span class="lbl">EDITIONS MINTED</span><span class="val" id="cvEds">—</span></div>
+      </div>
+      <button class="mint-key cv-mint" id="cvMint">MINT</button>
+      <div class="cv-links">
+        <a id="cvArtLink" href="#" target="_blank" rel="noopener">VIEW FULL ART ↗</a>
+        <a id="cvChainLink" href="#" target="_blank" rel="noopener">CONTRACT ↗</a>
+      </div>
+      <p class="cv-note">
+        price rises <b>5%</b> after every mint of this artwork. proceeds route to the mission
+        treasury; any overpayment is auto-refunded in the same transaction. mints are irreversible.
+      </p>
+    </div>
   </div>
-</dialog>
-
-<dialog class="crate-view" id="walletPicker">
-  <div class="picker-list" id="pickerList"></div>
 </dialog>
 
 <section id="venue">
@@ -1547,7 +1698,6 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     const operatorEl = $('hgOperator');
     const connectBtn = $('hgConnect');
     const view = $('crateView');
-    const picker = $('walletPicker');
 
     const state = {
       prices: Array(HANGAR.ARTS).fill(HANGAR.BASE_PRICE_WEI),
@@ -1555,7 +1705,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       tokens: [],   // [{id, art, owner, listPrice}] — the whole token board
       loaded: false
     };
-    const wallet = { provider: null, account: null, chainOk: false, providers: [] };
+    const wallet = { provider: null, account: null, chainOk: false, viaAppKit: false };
     let viewArt = 0;
     let pending = false;
     let pendingKey = null;   // 'buy:12' | 'list:12' | 'delist:12' — market ops only
@@ -1656,10 +1806,13 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       }
       if (viewArt) {
         $('cvPrice').textContent = weiToEth(state.prices[viewArt - 1]) + ' ETH';
+        $('cvEds').textContent = state.loaded ? '×' + state.minted[viewArt - 1] : '—';
         const cv = $('cvMint');
         cv.disabled = !armed || pending;
+        $('cvPrev').disabled = pending;
+        $('cvNext').disabled = pending;
         if (!pending) {
-          cv.textContent = 'MINT';
+          cv.textContent = 'MINT · ' + weiToEth(state.prices[viewArt - 1]) + ' ETH';
           cv.classList.remove('busy');
         }
       }
@@ -1706,46 +1859,111 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       renderMarket();
     }
 
-    // ---- wallet ----
-    window.addEventListener('eip6963:announceProvider', (ev) => {
-      if (!wallet.providers.some((p) => p.info.uuid === ev.detail.info.uuid)) {
-        wallet.providers.push(ev.detail);
-      }
-    });
-    window.dispatchEvent(new Event('eip6963:requestProvider'));
+    // ---- wallet: Reown AppKit primary, injected EIP-1193 fallback ----
+    let appkitHooked = false;
 
-    function pickProvider() {
+    // wait for the AppKit module bridge to come up (or declare failure)
+    function appkitReady() {
       return new Promise((resolve) => {
-        if (wallet.providers.length > 1) {
-          const list = $('pickerList');
-          list.innerHTML = '';
-          wallet.providers.forEach((p) => {
-            const b = document.createElement('button');
-            b.innerHTML = (p.info.icon ? '<img src="' + p.info.icon + '" alt="">' : '') + p.info.name;
-            b.addEventListener('click', () => { picker.close(); resolve(p.provider); });
-            list.appendChild(b);
-          });
-          // 'close' fires for esc, backdrop click and button clicks alike; a
-          // button's resolve(provider) settles the promise first, so this
-          // late resolve is a no-op except for genuine dismissals
-          picker.addEventListener('close', () => resolve('dismissed'), { once: true });
-          picker.showModal();
-        } else if (wallet.providers.length === 1) {
-          resolve(wallet.providers[0].provider);
-        } else {
-          resolve(window.ethereum || null);
-        }
+        if (window.__sfrogAppKit) return resolve(window.__sfrogAppKit);
+        if (window.__sfrogAppKitFailed) return resolve(null);
+        let waited = 0;
+        const iv = setInterval(() => {
+          if (window.__sfrogAppKit) { clearInterval(iv); resolve(window.__sfrogAppKit); }
+          else if (window.__sfrogAppKitFailed || (waited += 150) >= 7000) { clearInterval(iv); resolve(null); }
+        }, 150);
       });
     }
 
-    async function ensureChain(provider) {
+    function chainIdToNum(cid) {
+      if (cid == null) return NaN;
+      if (typeof cid === 'number') return cid;
+      const s = String(cid);
+      if (s.includes(':')) return Number(s.split(':').pop()); // CAIP: eip155:4663
+      if (s.startsWith('0x')) return parseInt(s, 16);
+      return Number(s);
+    }
+
+    async function readChainOk() {
+      try {
+        let cid = null;
+        if (wallet.viaAppKit && window.__sfrogAppKit) cid = window.__sfrogAppKit.getChainId();
+        if (cid == null && wallet.provider) cid = await wallet.provider.request({ method: 'eth_chainId' });
+        wallet.chainOk = chainIdToNum(cid) === 4663;
+      } catch (_) { wallet.chainOk = false; }
+      return wallet.chainOk;
+    }
+
+    // keep wallet state in sync with AppKit account/network changes
+    function hookAppKit(sf) {
+      if (appkitHooked) return;
+      appkitHooked = true;
+      try {
+        sf.subscribeAccount(async () => {
+          const addr = sf.getAddress();
+          wallet.account = addr || null;
+          wallet.provider = sf.getProvider() || wallet.provider;
+          wallet.viaAppKit = !!addr;
+          if (!addr) wallet.chainOk = false; else await readChainOk();
+          paintWallet();
+          loadTokens();
+        });
+      } catch (_) {}
+      try {
+        sf.subscribeNetwork(async () => { await readChainOk(); paintWallet(); });
+      } catch (_) {}
+    }
+
+    // open the AppKit modal and resolve once an address + provider are live
+    function connectAppKit(sf) {
+      return new Promise((resolve) => {
+        let done = false, iv = null, sawOpen = false;
+        const finish = (val) => {
+          if (done) return;
+          done = true;
+          if (iv) clearInterval(iv);
+          resolve(val);
+        };
+        // AppKit 1.7.8 subscribe* return no unsubscriber, so leaked callbacks
+        // are made inert by this done-guard instead of by unsubscribing.
+        const tryResolve = () => {
+          if (done) return false;
+          const addr = sf.getAddress();
+          const prov = sf.getProvider();
+          if (addr && prov) {
+            wallet.account = addr;
+            wallet.provider = prov;
+            wallet.viaAppKit = true;
+            hookAppKit(sf);
+            finish(true);
+            return true;
+          }
+          return false;
+        };
+        // release pending if the operator dismisses the modal unconnected; the
+        // 400ms recheck lets a just-completed connection's address propagate
+        // before we treat a modal-close as a dismissal
+        try {
+          sf.subscribeState((st) => {
+            if (st && st.open) { sawOpen = true; return; }
+            if (sawOpen && !sf.getAddress()) {
+              setTimeout(() => { if (!done && !sf.getAddress()) finish(false); }, 400);
+            }
+          });
+        } catch (_) {}
+        try { sf.subscribeAccount(() => tryResolve()); } catch (_) {}
+        iv = setInterval(tryResolve, 250);
+        if (!tryResolve()) { try { sf.open(); } catch (e) { finish(false); } }
+        setTimeout(() => finish(false), 120000); // backstop only
+      });
+    }
+
+    // injected wallet fallback if the AppKit CDN never loads
+    async function ensureChainInjected(provider) {
       const cid = await provider.request({ method: 'eth_chainId' });
       if (cid === HANGAR.CHAIN_ID_HEX) return true;
       try {
-        await provider.request({
-          method: 'wallet_switchEthereumChain',
-          params: [{ chainId: HANGAR.CHAIN_ID_HEX }]
-        });
+        await provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: HANGAR.CHAIN_ID_HEX }] });
         return true;
       } catch (e) {
         if (e && (e.code === 4902 || (e.data && e.data.originalError && e.data.originalError.code === 4902))) {
@@ -1765,6 +1983,26 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       }
     }
 
+    async function connectInjected() {
+      const provider = window.ethereum;
+      if (!provider) {
+        log('no wallet found. install an EVM wallet, or open this page in your wallet\'s browser.', 'err');
+        return false;
+      }
+      const accounts = await provider.request({ method: 'eth_requestAccounts' });
+      wallet.account = accounts && accounts[0] ? accounts[0] : null;
+      if (!wallet.account) return false;
+      wallet.provider = provider;
+      wallet.viaAppKit = false;
+      wallet.chainOk = await ensureChainInjected(provider);
+      if (provider.on && !provider._hangarHooked) {
+        provider._hangarHooked = true;
+        provider.on('accountsChanged', (acc) => { wallet.account = acc && acc[0] ? acc[0] : null; paintWallet(); loadTokens(); });
+        provider.on('chainChanged', (cid) => { wallet.chainOk = cid === HANGAR.CHAIN_ID_HEX; paintWallet(); });
+      }
+      return !!wallet.account;
+    }
+
     function paintWallet() {
       if (!wallet.account) {
         connectBtn.textContent = 'CONNECT WALLET';
@@ -1777,41 +2015,21 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       connectBtn.classList.toggle('warn', !wallet.chainOk);
       operatorEl.innerHTML = wallet.chainOk
         ? 'CHAIN 4663 <span style="color:var(--phos)">✓</span>'
-        : '<span style="color:var(--amber)">WRONG CHAIN — CLICK YOUR ADDRESS</span>';
+        : '<span style="color:var(--amber)">WRONG CHAIN — TAP TO SWITCH</span>';
       renderMarket();
     }
 
     async function connect() {
       try {
-        const provider = wallet.provider || await pickProvider();
-        if (provider === 'dismissed') {
-          log('wallet picker dismissed.');
-          return null;
-        }
-        if (!provider) {
-          log('no wallet found. open this console inside your wallet\'s browser.', 'err');
-          return null;
-        }
-        wallet.provider = provider;
-        const accounts = await provider.request({ method: 'eth_requestAccounts' });
-        wallet.account = accounts && accounts[0] ? accounts[0] : null;
-        if (!wallet.account) return null;
-        wallet.chainOk = await ensureChain(provider);
-        if (provider.on && !provider._hangarHooked) {
-          provider._hangarHooked = true;
-          provider.on('accountsChanged', (acc) => {
-            wallet.account = acc && acc[0] ? acc[0] : null;
-            paintWallet();
-          });
-          provider.on('chainChanged', (cid) => {
-            wallet.chainOk = cid === HANGAR.CHAIN_ID_HEX;
-            paintWallet();
-          });
-        }
+        const sf = await appkitReady();
+        const ok = sf ? await connectAppKit(sf) : await connectInjected();
+        if (!ok) { paintWallet(); return null; }
+        await readChainOk();
         paintWallet();
         if (wallet.chainOk) log('operator linked: ' + short(wallet.account), 'ok');
-        else log('operator linked, wrong chain — switch to robinhood chain (4663).', 'err');
-        return wallet.chainOk ? wallet : null;
+        else log('linked — wrong chain. switch to robinhood chain (4663) to mint.', 'err');
+        loadTokens();
+        return wallet;
       } catch (e) {
         if (e && e.code === 4001) log('link aborted by operator.');
         else log('link failed: ' + (e.message || e), 'err');
@@ -1821,10 +2039,18 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
 
     // ---- transactions: mint / buy / list / delist share this spine ----
     async function armWallet() {
-      const w = (wallet.account && wallet.chainOk) ? wallet : await connect();
-      if (!w) return false;
+      if (!wallet.account) { const w = await connect(); if (!w) return false; }
+      if (!wallet.provider) return false;
       // the wallet may have hopped chains since connect — re-verify before signing
-      wallet.chainOk = await ensureChain(wallet.provider);
+      await readChainOk();
+      if (!wallet.chainOk) {
+        if (wallet.viaAppKit && window.__sfrogAppKit) {
+          try { await window.__sfrogAppKit.switch(); } catch (_) {}
+          await readChainOk();
+        } else {
+          try { wallet.chainOk = await ensureChainInjected(wallet.provider); } catch (_) { wallet.chainOk = false; }
+        }
+      }
       paintWallet();
       if (!wallet.chainOk) {
         log('wrong chain — switch to robinhood chain (4663) and retry.', 'err');
@@ -1832,6 +2058,23 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       }
       return true;
     }
+
+    // reflect an already-live AppKit session (e.g. returning visitor) now, and
+    // still hook it if the CDN finishes loading after appkitReady's soft timeout
+    function adoptAppKit(sf) {
+      if (!sf) return;
+      hookAppKit(sf);
+      const addr = sf.getAddress();
+      if (addr && !wallet.account) {
+        wallet.account = addr;
+        wallet.provider = sf.getProvider() || wallet.provider;
+        wallet.viaAppKit = true;
+        readChainOk().then(paintWallet);
+        loadTokens();
+      }
+    }
+    appkitReady().then(adoptAppKit);
+    window.addEventListener('sfrog:appkit-ready', () => adoptAppKit(window.__sfrogAppKit));
 
     // one tx end to end; build() returns {value, data, note} or null to abort.
     // key ('buy:12' etc) lets renderMarket re-stamp busy state after rebuilds,
@@ -2102,19 +2345,33 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     }
 
     function openView(artId) {
-      viewArt = artId;
+      viewArt = ((artId - 1 + HANGAR.ARTS) % HANGAR.ARTS) + 1; // wrap 1..ARTS
       $('cvImg').src = 'nft/art/' + viewArt + '.webp';
-      $('cvImg').alt = 'Smokin Frog Hotbox #' + viewArt;
+      $('cvImg').alt = 'Smokin Frog Hotbox — artwork ' + viewArt;
+      $('cvChip').textContent = 'ART #' + viewArt + ' / ' + HANGAR.ARTS;
       $('cvName').textContent = 'HOTBOX #' + viewArt;
+      $('cvArtLink').href = 'nft/art/' + viewArt + '.webp';
+      $('cvChainLink').href = HANGAR.EXPLORER + '/token/' + HANGAR.CONTRACT;
       refreshCards();
-      view.showModal();
+      if (!view.open) view.showModal();
     }
 
     // ---- wiring ----
     buildGrid();
     refreshCards();
 
-    connectBtn.addEventListener('click', connect);
+    // connected chip opens AppKit's account view (switch network / disconnect);
+    // otherwise it starts a connection.
+    connectBtn.addEventListener('click', () => {
+      if (wallet.account) {
+        if (wallet.viaAppKit && window.__sfrogAppKit) {
+          try { window.__sfrogAppKit.open({ view: 'Account' }); return; } catch (_) {}
+        }
+        if (!wallet.chainOk) { armWallet(); return; }
+        return; // injected wallet, connected on the right chain — nothing to do
+      }
+      connect();
+    });
     grid.addEventListener('click', (ev) => {
       const mintId = ev.target.getAttribute && ev.target.getAttribute('data-mint');
       if (mintId) return doMint(Number(mintId), ev.target);
@@ -2128,8 +2385,19 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       if (id) priceDrafts[id] = ev.target.value;
     });
     $('cvMint').addEventListener('click', (ev) => doMint(viewArt, ev.target));
-    view.addEventListener('click', (ev) => { if (ev.target === view) view.close(); });
-    picker.addEventListener('click', (ev) => { if (ev.target === picker) picker.close(); });
+    $('cvClose').addEventListener('click', () => view.close());
+    const navView = (d) => { if (!pending) openView(viewArt + d); }; // don't swap art mid-mint
+    $('cvPrev').addEventListener('click', () => navView(-1));
+    $('cvNext').addEventListener('click', () => navView(1));
+    // only treat a click as a backdrop dismiss if the press STARTED on the backdrop,
+    // so a text-selection drag that ends over the backdrop doesn't close the modal
+    let cvDownOnBackdrop = false;
+    view.addEventListener('pointerdown', (ev) => { cvDownOnBackdrop = ev.target === view; });
+    view.addEventListener('click', (ev) => { if (ev.target === view && cvDownOnBackdrop) view.close(); });
+    view.addEventListener('keydown', (ev) => {
+      if (ev.key === 'ArrowLeft') navView(-1);
+      else if (ev.key === 'ArrowRight') navView(1);
+    });
 
     if (HANGAR.CONTRACT) {
       const note = $('hgContractNote');
@@ -2144,6 +2412,84 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       });
     }
   })();
+</script>
+
+<script type="module">
+/* Reown AppKit (WalletConnect) — EVM wallet connection for the Hotbox Hangar.
+   projectId is public/client-side. Loads async off a CDN; if it fails, the
+   hangar falls back to an injected wallet so minting still works. Bridged to
+   the main script via window.__sfrogAppKit. */
+(async () => {
+  const V = '1.7.8';
+  const PROJECT_ID = '47e834d7ac9bf0a3a3e0025f0a041d8a';
+  const RPC = 'https://rpc.mainnet.chain.robinhood.com';
+  const EXPLORER = 'https://robinhoodchain.blockscout.com';
+
+  const load = async () => {
+    const { createAppKit } = await import(`https://esm.sh/@reown/appkit@${V}?bundle`);
+    const { EthersAdapter } = await import(`https://esm.sh/@reown/appkit-adapter-ethers@${V}?bundle`);
+    const { defineChain } = await import(`https://esm.sh/@reown/appkit/networks?bundle`);
+    return { createAppKit, EthersAdapter, defineChain };
+  };
+
+  let mods = null;
+  for (let i = 0; i < 3 && !mods; i++) {
+    try { mods = await load(); }
+    catch (e) { console.warn('[appkit] load attempt ' + i + ' failed:', e && e.message); if (i < 2) await new Promise((r) => setTimeout(r, 1200)); }
+  }
+  if (!mods) { window.__sfrogAppKitFailed = true; console.warn('[appkit] load failed — injected-wallet fallback active'); return; }
+
+  try {
+    const { createAppKit, EthersAdapter, defineChain } = mods;
+    const robinhood = defineChain({
+      id: 4663,
+      caipNetworkId: 'eip155:4663',
+      chainNamespace: 'eip155',
+      name: 'Robinhood Chain',
+      nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+      rpcUrls: { default: { http: [RPC] } },
+      blockExplorers: { default: { name: 'Blockscout', url: EXPLORER } }
+    });
+    const appkit = createAppKit({
+      adapters: [new EthersAdapter()],
+      networks: [robinhood],
+      defaultNetwork: robinhood,
+      projectId: PROJECT_ID,
+      metadata: {
+        name: 'Smokin Frog Hotbox',
+        description: '99 open-edition Smokin Frog NFTs on Robinhood Chain',
+        url: location.origin,
+        icons: [location.origin + '/favicon.png']
+      },
+      features: { analytics: false, email: false, socials: [], onramp: false, swaps: false },
+      themeMode: 'dark',
+      themeVariables: {
+        '--w3m-accent': '#CDF505',
+        '--w3m-color-mix': '#35F06A',
+        '--w3m-color-mix-strength': 8,
+        '--w3m-font-family': "'IBM Plex Mono', ui-monospace, monospace",
+        '--w3m-border-radius-master': '0px'
+      }
+    });
+    window.__sfrogAppKit = {
+      open: (opts) => appkit.open(opts),
+      close: () => appkit.close && appkit.close(),
+      disconnect: () => appkit.disconnect && appkit.disconnect(),
+      switch: () => (appkit.switchNetwork ? appkit.switchNetwork(robinhood) : null),
+      getAddress: () => { try { return (appkit.getAddress && appkit.getAddress()) || null; } catch (_) { return null; } },
+      getChainId: () => { try { return (appkit.getChainId && appkit.getChainId()) ?? null; } catch (_) { return null; } },
+      getProvider: () => { try { return (appkit.getWalletProvider && appkit.getWalletProvider()) || null; } catch (_) { return null; } },
+      subscribeAccount: (cb) => { try { return appkit.subscribeAccount(cb); } catch (_) { return null; } },
+      subscribeNetwork: (cb) => { try { return appkit.subscribeNetwork(cb); } catch (_) { return null; } },
+      subscribeState: (cb) => { try { return appkit.subscribeState(cb); } catch (_) { return null; } }
+    };
+    window.dispatchEvent(new Event('sfrog:appkit-ready'));
+    console.log('[appkit] ready — EVM wallet connect for Robinhood Chain 4663');
+  } catch (e) {
+    window.__sfrogAppKitFailed = true;
+    console.warn('[appkit] init failed:', e && e.message);
+  }
+})();
 </script>
 </body>
 </html>
