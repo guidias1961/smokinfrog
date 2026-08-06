@@ -892,6 +892,13 @@
   }
   .crate .crate-row .price { color: var(--phos); }
   .crate .crate-row .eds { color: var(--phos-text); }
+  /* rarity tag — colours drawn from the existing CRT palette */
+  .rarity { font-family: 'VT323', monospace; font-size: 0.95rem; letter-spacing: 1px; }
+  .rar-0 { color: var(--phos-text); }               /* Common */
+  .rar-1 { color: var(--phos); }                    /* Uncommon */
+  .rar-2 { color: var(--lime); }                    /* Rare */
+  .rar-3 { color: var(--amber); }                   /* Epic */
+  .rar-4 { color: var(--klaxon); text-shadow: 0 0 8px rgba(240,48,36,0.5); } /* Legendary */
   .mint-key {
     font-family: 'VT323', monospace;
     font-size: 1.1rem;
@@ -909,6 +916,13 @@
   .mint-key[disabled] { color: var(--phos-dim); border-color: var(--phos-dim); cursor: not-allowed; }
   .mint-key[disabled]:hover { background: #0a0f0a; color: var(--phos-dim); }
   .mint-key.busy { color: var(--amber); border-color: var(--amber); }
+  .mint-key.out { color: var(--phos-dim); border-color: var(--phos-dim); }
+  /* higher specificity so the tier colour wins over the base .cv-tag rule */
+  .cv-tag.rar-0 { color: var(--phos-text); }
+  .cv-tag.rar-1 { color: var(--phos); }
+  .cv-tag.rar-2 { color: var(--lime); }
+  .cv-tag.rar-3 { color: var(--amber); }
+  .cv-tag.rar-4 { color: var(--klaxon); }
   .hangar-log {
     font-family: 'VT323', monospace;
     font-size: 1.1rem;
@@ -1297,14 +1311,15 @@
 
 <section id="hangar">
   <div class="sec-label">CARGO / 04</div>
-  <h2 class="sec-title">HOTBOX HANGAR — 99 OPEN EDITIONS</h2>
+  <h2 class="sec-title">HOTBOX HANGAR — 99 ARTWORKS · 5 RARITY TIERS</h2>
 
   <p class="hangar-brief">
-    ninety-nine frames of the subject, pulled from hotbox surveillance. every artwork is an
-    <b>open edition on robinhood chain</b>: first mint of any art costs <b>0.01 ETH</b>, and every
-    mint of that same art raises its price by <b>5%</b>. on-chain, permissionless, forever.
-    minted funds route straight to the mission treasury. minted a crate? <b>name your own resale
-    price</b> in the swap meet below — sales pay you directly, 5% royalty feeds the mission.
+    ninety-nine frames of the subject, sorted into five rarity tiers: <b>3 Legendary 1/1s</b>,
+    8 Epic, 18 Rare, 30 Uncommon, 40 Common. rarer artworks have <b>fewer editions and a higher
+    floor</b>. each mint of an artwork raises its price <b>5%</b>, and once its edition cap is hit
+    it is <b>sold out forever</b> — max supply is fixed at <b>1,495</b>. mint funds route straight
+    to the mission treasury. minted a crate? <b>name your own resale price</b> in the swap meet
+    below — sales pay you directly, 5% royalty feeds the mission.
   </p>
 
   <div class="hangar-deck">
@@ -1347,11 +1362,11 @@
     </div>
     <div class="cv-panel">
       <button class="cv-close" id="cvClose" aria-label="close">[ CLOSE ✕ ]</button>
-      <div class="cv-tag">HOTBOX · OPEN EDITION</div>
+      <div class="cv-tag" id="cvTag">HOTBOX · LIMITED EDITION</div>
       <h3 class="cv-title" id="cvName">HOTBOX #—</h3>
       <div class="cv-stats">
         <div class="cv-stat"><span class="lbl">MINT PRICE</span><span class="val price" id="cvPrice">—</span></div>
-        <div class="cv-stat"><span class="lbl">EDITIONS MINTED</span><span class="val" id="cvEds">—</span></div>
+        <div class="cv-stat"><span class="lbl">MINTED / CAP</span><span class="val" id="cvEds">—</span></div>
       </div>
       <button class="mint-key cv-mint" id="cvMint">MINT</button>
       <div class="cv-links">
@@ -1359,7 +1374,8 @@
         <a id="cvChainLink" href="#" target="_blank" rel="noopener">CONTRACT ↗</a>
       </div>
       <p class="cv-note">
-        price rises <b>5%</b> after every mint of this artwork. proceeds route to the mission
+        limited edition: only the cap shown above will ever exist for this artwork. each mint
+        raises its price <b>5%</b>; at the cap it is sold out forever. proceeds route to the mission
         treasury; any overpayment is auto-refunded in the same transaction. mints are irreversible.
       </p>
     </div>
@@ -1545,7 +1561,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     'DESTINATION: UNISWAP V4',
     'SUPPLY: TBA — SET AT LAUNCH',
     MISSION.CA ? 'CA: LIVE — VERIFY ON OFFICIAL COMMS' : 'CA: TBA — TRUST ONLY OFFICIAL COMMS',
-    'HANGAR: 99 OPEN EDITIONS · 0.01 ETH START · +5% PER MINT',
+    'HANGAR: 99 ARTWORKS · 5 RARITY TIERS · MAX SUPPLY 1495',
     'SWAP MEET: RESELL YOUR CRATES AT YOUR OWN PRICE',
     'CANON SINCE 2008 · BOY\'S CLUB UNIVERSE',
     'FAIR LAUNCH · NO PRESALE · NO TEAM BAG',
@@ -1594,7 +1610,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     '> pad ................ pools.trade [UNISWAP]',
     '> chain .............. robinhood 4663 · gas: ETH',
     '> destination ........ uniswap v4',
-    '> hangar ............. 99 crates · open editions',
+    '> hangar ............. 99 arts · 5 tiers · cap 1495',
     '> STATUS: ' + MISSION.STATUS.replace('…', '')
   ];
   (function bootSequence() {
@@ -1673,12 +1689,13 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
   // whatever EIP-6963 / injected wallet the operator picks.
   // ======================================================================
   const HANGAR = {
-    CONTRACT: '0xd0e5db34B36b85B0c7dc162f0A89CB45166bcCC9', // SmokinFrogHotbox on chain 4663
+    CONTRACT: '0x0f80716BBFdDAa3cAF769969d26d6417f1Be1843', // SmokinFrogHotbox (tiered, finite) on chain 4663
     CHAIN_ID_HEX: '0x1237',         // 4663
     CHAIN_NAME: 'Robinhood Chain',
     RPC: 'https://rpc.mainnet.chain.robinhood.com',
     EXPLORER: 'https://robinhoodchain.blockscout.com',
     ARTS: 99,
+    MAX_SUPPLY: 1495,
     BASE_PRICE_WEI: 10000000000000000n,
     SEL_GET_STATE: '0x1865c57d',    // getState()
     SEL_MINT: '0xa0712d68',         // mint(uint256)
@@ -1702,9 +1719,20 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     const connectBtn = $('hgConnect');
     const view = $('crateView');
 
+    // rarity tiers, mirrored from the contract (index = tier code 0..4)
+    const TIER_META = [
+      { name: 'COMMON',    cls: 'rar-0' },
+      { name: 'UNCOMMON',  cls: 'rar-1' },
+      { name: 'RARE',      cls: 'rar-2' },
+      { name: 'EPIC',      cls: 'rar-3' },
+      { name: 'LEGENDARY', cls: 'rar-4' }
+    ];
+
     const state = {
       prices: Array(HANGAR.ARTS).fill(HANGAR.BASE_PRICE_WEI),
       minted: Array(HANGAR.ARTS).fill(0n),
+      caps: Array(HANGAR.ARTS).fill(0n),
+      tiers: Array(HANGAR.ARTS).fill(0n),
       tokens: [],   // [{id, art, owner, listPrice}] — the whole token board
       loaded: false
     };
@@ -1777,14 +1805,21 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     }
 
     // ---- render ----
+    const tierMeta = (art) => TIER_META[Number(state.tiers[art - 1] || 0n)];
+    const rarSpan = (art) => state.loaded
+      ? '<span class="rarity ' + tierMeta(art).cls + '">' + tierMeta(art).name + '</span>'
+      : '<span class="eds">ART #' + art + '</span>';
+    const isSoldOut = (art) => state.loaded && state.caps[art - 1] > 0n && state.minted[art - 1] >= state.caps[art - 1];
+    const edsText = (art) => state.loaded ? (state.minted[art - 1] + '/' + state.caps[art - 1]) : '—';
+
     function buildGrid() {
       for (let i = 1; i <= HANGAR.ARTS; i++) {
         const crate = document.createElement('div');
         crate.className = 'crate';
         crate.innerHTML =
           '<img src="nft/thumb/' + i + '.webp" alt="Smokin Frog Hotbox #' + i + '" loading="lazy" width="420" height="420" data-view="' + i + '">' +
-          '<div class="crate-row"><span>#' + i + '</span><span class="eds" id="eds-' + i + '">—</span></div>' +
-          '<div class="crate-row"><span class="price" id="price-' + i + '">' + weiToEth(HANGAR.BASE_PRICE_WEI) + ' ETH</span></div>' +
+          '<div class="crate-row"><span>#' + i + '</span><span class="rarity" id="rar-' + i + '">—</span></div>' +
+          '<div class="crate-row"><span class="price" id="price-' + i + '">' + weiToEth(HANGAR.BASE_PRICE_WEI) + ' ETH</span><span class="eds" id="eds-' + i + '">—</span></div>' +
           '<button class="mint-key" id="mint-' + i + '" data-mint="' + i + '" disabled>ARMING</button>';
         grid.appendChild(crate);
       }
@@ -1794,29 +1829,41 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       const armed = !!HANGAR.CONTRACT;
       for (let i = 1; i <= HANGAR.ARTS; i++) {
         $('price-' + i).textContent = weiToEth(state.prices[i - 1]) + ' ETH';
-        $('eds-' + i).textContent = state.loaded ? '×' + state.minted[i - 1] : '—';
+        $('eds-' + i).textContent = edsText(i);
+        const rar = $('rar-' + i);
+        if (state.loaded) { const m = tierMeta(i); rar.textContent = m.name; rar.className = 'rarity ' + m.cls; }
         const btn = $('mint-' + i);
-        btn.disabled = !armed || pending;
+        const soldOut = isSoldOut(i);
+        btn.disabled = !armed || pending || soldOut;
         if (!pending) {
-          btn.textContent = armed ? 'MINT' : 'ARMING';
+          btn.textContent = !armed ? 'ARMING' : (soldOut ? 'SOLD OUT' : 'MINT');
           btn.classList.remove('busy');
+          btn.classList.toggle('out', soldOut);
         }
       }
       bayEl.textContent = armed ? (state.loaded ? 'OPEN' : 'LINKING…') : 'ARMING';
       if (state.loaded) {
-        mintedEl.textContent = String(state.minted.reduce((a, b) => a + b, 0n));
+        const total = state.minted.reduce((a, b) => a + b, 0n);
+        mintedEl.textContent = total + ' / ' + HANGAR.MAX_SUPPLY;
         floorEl.textContent = weiToEth(state.prices.reduce((a, b) => (b < a ? b : a))) + ' ETH';
       }
       if (viewArt) {
         $('cvPrice').textContent = weiToEth(state.prices[viewArt - 1]) + ' ETH';
-        $('cvEds').textContent = state.loaded ? '×' + state.minted[viewArt - 1] : '—';
+        $('cvEds').textContent = edsText(viewArt);
+        if (state.loaded) {
+          const m = tierMeta(viewArt);
+          $('cvTag').textContent = 'HOTBOX · ' + m.name;
+          $('cvTag').className = 'cv-tag ' + m.cls;
+        }
         const cv = $('cvMint');
-        cv.disabled = !armed || pending;
+        const soldOut = isSoldOut(viewArt);
+        cv.disabled = !armed || pending || soldOut;
         $('cvPrev').disabled = pending;
         $('cvNext').disabled = pending;
         if (!pending) {
-          cv.textContent = 'MINT · ' + weiToEth(state.prices[viewArt - 1]) + ' ETH';
+          cv.textContent = soldOut ? 'SOLD OUT' : ('MINT · ' + weiToEth(state.prices[viewArt - 1]) + ' ETH');
           cv.classList.remove('busy');
+          cv.classList.toggle('out', soldOut);
         }
       }
       renderMarket();
@@ -1825,10 +1872,12 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     async function loadState() {
       if (!HANGAR.CONTRACT) return;
       try {
-        const [prices, minted] = decodeDynArrays(await ethCall(HANGAR.SEL_GET_STATE), 2);
+        const [prices, minted, caps, tiers] = decodeDynArrays(await ethCall(HANGAR.SEL_GET_STATE), 4);
         if (prices.length >= HANGAR.ARTS) {
           state.prices = prices;
           state.minted = minted;
+          state.caps = caps;
+          state.tiers = tiers;
           state.loaded = true;
         }
       } catch (e) {
@@ -2251,7 +2300,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
         card.className = 'crate';
         card.innerHTML =
           crateImg(t.art) +
-          '<div class="crate-row"><span>TOKEN #' + t.id + '</span><span class="eds">ART #' + t.art + '</span></div>' +
+          '<div class="crate-row"><span>TOKEN #' + t.id + '</span>' + rarSpan(t.art) + '</div>' +
           '<div class="crate-row"><span class="price">' + weiToEth(t.listPrice) + ' ETH</span><span class="seller">' + (mine ? 'YOURS' : short(t.owner)) + '</span></div>' +
           (mine
             ? '<button class="mint-key ghost" data-delist="' + t.id + '"' + (pending ? ' disabled' : '') + '>DELIST</button>'
@@ -2268,7 +2317,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
         const draft = (priceDrafts[t.id] || '').replace(/[^0-9.]/g, '');
         card.innerHTML =
           crateImg(t.art) +
-          '<div class="crate-row"><span>TOKEN #' + t.id + '</span><span class="eds">ART #' + t.art + '</span></div>' +
+          '<div class="crate-row"><span>TOKEN #' + t.id + '</span>' + rarSpan(t.art) + '</div>' +
           '<div class="crate-row">' + (t.listPrice > 0n
             ? '<span class="price">LISTED @ ' + weiToEth(t.listPrice) + ' ETH</span>'
             : '<span class="eds">NOT LISTED</span>') + '</div>' +

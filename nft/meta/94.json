@@ -1,9 +1,21 @@
 {
   "name": "Smokin Frog Hotbox #94",
-  "description": "Smokin Frog Hotbox — open-edition collection on Robinhood Chain. Each artwork starts at 0.01 ETH and climbs 5% with every mint. Smokin Frog: canon Matt Furie character, Boy's Club, 2008.",
+  "description": "Smokin Frog Hotbox — a finite 99-artwork collection on Robinhood Chain across five rarity tiers. This artwork is Uncommon (edition of 12). Each mint of an artwork raises its price 5%; once its edition cap is reached it is sold out forever. Smokin Frog: canon Matt Furie character, Boy's Club, 2008.",
   "image": "https://smokinfrog-production.up.railway.app/nft/art/94.webp",
   "external_url": "https://smokinfrog-production.up.railway.app",
   "attributes": [
+    {
+      "trait_type": "Rarity",
+      "value": "Uncommon"
+    },
+    {
+      "trait_type": "Edition Size",
+      "value": 12
+    },
+    {
+      "trait_type": "Base Price ETH",
+      "value": "0.02"
+    },
     {
       "trait_type": "Art",
       "value": 94

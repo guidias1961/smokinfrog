@@ -1,6 +1,6 @@
 {
   "name": "Smokin Frog Hotbox",
-  "description": "99 open-edition Smokin Frog artworks on Robinhood Chain. Price starts at 0.01 ETH per artwork and rises 5% after every mint of the same art.",
+  "description": "A finite 99-artwork Smokin Frog collection on Robinhood Chain across five rarity tiers — 3 Legendary 1/1s, 8 Epic, 18 Rare, 30 Uncommon, 40 Common. Rarer artworks have fewer editions and a higher floor. Max supply 1495. Each mint of an artwork raises its price 5%; sold out at the cap.",
   "image": "https://smokinfrog-production.up.railway.app/nft/art/1.webp",
   "external_link": "https://smokinfrog-production.up.railway.app"
 }

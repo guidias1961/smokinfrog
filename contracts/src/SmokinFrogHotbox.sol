@@ -8,25 +8,40 @@ import {ReentrancyGuard} from "openzeppelin-contracts/contracts/utils/Reentrancy
 import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 
 /// @title Smokin Frog Hotbox
-/// @notice Open-edition NFT collection on Robinhood Chain. Each of the `artCount`
-///         artworks starts at 0.01 ETH and its price rises 5% after every mint of
-///         that same artwork. Sale proceeds are forwarded to `payout` on each mint.
-///         Includes a built-in secondary market: any token owner can list at their
-///         own price; buys pay the seller minus the 5% royalty, in the same tx.
+/// @notice A FINITE 99-artwork collection on Robinhood Chain with five rarity
+///         tiers. Each artwork belongs to a tier that fixes (a) how many
+///         editions of it can ever exist and (b) its starting price. Rarer
+///         tiers have fewer editions and a higher floor. Every mint of an
+///         artwork raises that artwork's price by 5%; once its edition cap is
+///         reached it is sold out forever. Total supply is fixed at deploy.
+///         Includes a built-in secondary market with a 5% royalty to `payout`.
+///
+///         Tiers (index => name, editions/art, base price):
+///           0 Common     — 25 editions — 0.01 ETH
+///           1 Uncommon   — 12 editions — 0.02 ETH
+///           2 Rare       —  6 editions — 0.04 ETH
+///           3 Epic       —  3 editions — 0.08 ETH
+///           4 Legendary  —  1 edition  — 0.25 ETH  (1/1)
 contract SmokinFrogHotbox is ERC721, ERC2981, Ownable, ReentrancyGuard {
     using Strings for uint256;
 
-    uint256 public constant BASE_PRICE = 0.01 ether;
-    uint96 public constant ROYALTY_BPS = 500; // 5%, mirrored in ERC2981
+    uint96 public constant ROYALTY_BPS = 500;  // 5% secondary royalty
+    uint256 public constant RAMP_NUM = 105;     // +5% per mint of the same art
+    uint256 public constant RAMP_DEN = 100;
+    uint8 public constant NUM_TIERS = 5;
 
-    uint256 public artCount;
+    uint256 public immutable artCount;
+    uint256 public immutable maxSupply;  // sum of every artwork's edition cap — hard ceiling
     uint256 public totalMinted;
     string public baseURI;
     address public payout;
 
-    /// artId => number of editions minted
+    /// tier code (0..4) per art, packed one byte per art, artId-1 indexed
+    bytes private _artTiers;
+
+    /// artId => editions minted so far
     mapping(uint256 => uint256) public mintedOf;
-    /// artId => next mint price (0 means BASE_PRICE, i.e. never minted)
+    /// artId => next mint price (0 = never minted, use tier base price)
     mapping(uint256 => uint256) private _priceOf;
     /// tokenId => artId
     mapping(uint256 => uint256) public artOf;
@@ -35,7 +50,6 @@ contract SmokinFrogHotbox is ERC721, ERC2981, Ownable, ReentrancyGuard {
         address seller;
         uint96 price;
     }
-    /// tokenId => active listing (seller == 0 means not listed)
     mapping(uint256 => Listing) public listingOf;
 
     event Minted(
@@ -47,7 +61,6 @@ contract SmokinFrogHotbox is ERC721, ERC2981, Ownable, ReentrancyGuard {
     );
     event BaseURIChanged(string newBaseURI);
     event PayoutChanged(address newPayout);
-    event ArtsAdded(uint256 newArtCount);
     event PriceSet(uint256 indexed artId, uint256 newPrice);
     event Listed(uint256 indexed tokenId, address indexed seller, uint256 price);
     event Delisted(uint256 indexed tokenId, address indexed seller);
@@ -59,28 +72,79 @@ contract SmokinFrogHotbox is ERC721, ERC2981, Ownable, ReentrancyGuard {
         uint256 royalty
     );
 
-    constructor(uint256 artCount_, string memory baseURI_, address payout_)
+    /// @param artTiers_ one byte per artwork, each a tier code in [0,4]; its
+    ///        length sets artCount. Fixed forever at deploy.
+    constructor(bytes memory artTiers_, string memory baseURI_, address payout_)
         ERC721("Smokin Frog Hotbox", "SFROGNFT")
         Ownable(msg.sender)
     {
-        require(artCount_ > 0, "no arts");
+        uint256 n = artTiers_.length;
+        require(n > 0, "no arts");
         require(payout_ != address(0), "zero payout");
-        artCount = artCount_;
+
+        uint256 supply;
+        for (uint256 i = 0; i < n; ++i) {
+            uint8 t = uint8(artTiers_[i]);
+            require(t < NUM_TIERS, "bad tier");
+            supply += _tierCap(t);
+        }
+
+        artCount = n;
+        maxSupply = supply;
+        _artTiers = artTiers_;
         baseURI = baseURI_;
         payout = payout_;
         _setDefaultRoyalty(payout_, ROYALTY_BPS);
+    }
+
+    // ---------------------------------------------------------------- tier data
+
+    function _tierCap(uint8 t) internal pure returns (uint256) {
+        if (t == 0) return 25;
+        if (t == 1) return 12;
+        if (t == 2) return 6;
+        if (t == 3) return 3;
+        return 1; // Legendary
+    }
+
+    function _tierBasePrice(uint8 t) internal pure returns (uint256) {
+        if (t == 0) return 0.01 ether;
+        if (t == 1) return 0.02 ether;
+        if (t == 2) return 0.04 ether;
+        if (t == 3) return 0.08 ether;
+        return 0.25 ether; // Legendary
+    }
+
+    /// @notice Tier code (0 Common .. 4 Legendary) of artwork `artId` (1-based).
+    function tierOf(uint256 artId) public view returns (uint8) {
+        require(artId >= 1 && artId <= artCount, "unknown art");
+        return uint8(_artTiers[artId - 1]);
+    }
+
+    /// @notice Max editions that can ever exist for artwork `artId`.
+    function capOf(uint256 artId) public view returns (uint256) {
+        return _tierCap(tierOf(artId));
+    }
+
+    /// @notice Editions of artwork `artId` still mintable.
+    function remainingOf(uint256 artId) public view returns (uint256) {
+        return _tierCap(tierOf(artId)) - mintedOf[artId];
     }
 
     // ---------------------------------------------------------------- minting
 
     /// @notice Mint one edition of artwork `artId` (1-based). Send at least the
     ///         current price; any excess is refunded in the same transaction.
+    ///         Reverts once the artwork's edition cap is reached.
     function mint(uint256 artId) external payable nonReentrant returns (uint256 tokenId) {
         require(artId >= 1 && artId <= artCount, "unknown art");
+        uint256 cap = _tierCap(uint8(_artTiers[artId - 1]));
+        require(mintedOf[artId] < cap, "sold out");
+
         uint256 price = priceOf(artId);
         require(msg.value >= price, "underpaid");
 
-        uint256 nextPrice = (price * 105) / 100;
+        uint256 nextPrice = (price * RAMP_NUM) / RAMP_DEN;
         _priceOf[artId] = nextPrice;
         unchecked {
             mintedOf[artId] += 1;
@@ -104,8 +168,6 @@ contract SmokinFrogHotbox is ERC721, ERC2981, Ownable, ReentrancyGuard {
 
     // --------------------------------------------------------- secondary market
 
-    /// @notice List a token you own for sale at your own price. Listing again
-    ///         overwrites the previous price. Any transfer cancels the listing.
     function list(uint256 tokenId, uint96 price) external {
         require(ownerOf(tokenId) == msg.sender, "not yours");
         require(price > 0, "zero price");
@@ -113,7 +175,6 @@ contract SmokinFrogHotbox is ERC721, ERC2981, Ownable, ReentrancyGuard {
         emit Listed(tokenId, msg.sender, price);
     }
 
-    /// @notice Cancel your listing.
     function delist(uint256 tokenId) external {
         require(ownerOf(tokenId) == msg.sender, "not yours");
         require(listingOf[tokenId].seller != address(0), "not listed");
@@ -121,8 +182,6 @@ contract SmokinFrogHotbox is ERC721, ERC2981, Ownable, ReentrancyGuard {
         emit Delisted(tokenId, msg.sender);
     }
 
-    /// @notice Buy a listed token. Pays the seller price minus the 5% royalty
-    ///         (which goes to `payout`); any excess msg.value is refunded.
     function buy(uint256 tokenId) external payable nonReentrant {
         Listing memory l = listingOf[tokenId];
         require(l.seller != address(0), "not listed");
@@ -160,23 +219,32 @@ contract SmokinFrogHotbox is ERC721, ERC2981, Ownable, ReentrancyGuard {
     /// @notice Current mint price of artwork `artId`.
     function priceOf(uint256 artId) public view returns (uint256) {
         uint256 p = _priceOf[artId];
-        return p == 0 ? BASE_PRICE : p;
+        return p == 0 ? _tierBasePrice(uint8(_artTiers[artId - 1])) : p;
     }
 
-    /// @notice Full board state in one call: current price and minted count per art.
-    function getState() external view returns (uint256[] memory prices, uint256[] memory minted) {
+    /// @notice Whole board in one call: current price, minted count, edition cap
+    ///         and tier code for every artwork (index 0 == artId 1).
+    function getState()
+        external
+        view
+        returns (uint256[] memory prices, uint256[] memory minted, uint256[] memory caps, uint256[] memory tiers)
+    {
         uint256 n = artCount;
         prices = new uint256[](n);
         minted = new uint256[](n);
+        caps = new uint256[](n);
+        tiers = new uint256[](n);
         for (uint256 i = 0; i < n; ++i) {
+            uint8 t = uint8(_artTiers[i]);
             prices[i] = priceOf(i + 1);
             minted[i] = mintedOf[i + 1];
+            caps[i] = _tierCap(t);
+            tiers[i] = t;
         }
     }
 
-    /// @notice Paginated token board for the site: art, owner and listing price
-    ///         (0 = not listed) for tokenIds [start, start+count). TokenIds are
-    ///         1-based and dense up to totalMinted.
+    /// @notice Paginated token board: art, owner and listing price (0 = not
+    ///         listed) for tokenIds [start, start+count). 1-based, dense.
     function getTokens(uint256 start, uint256 count)
         external
         view
@@ -190,10 +258,10 @@ contract SmokinFrogHotbox is ERC721, ERC2981, Ownable, ReentrancyGuard {
         owners = new address[](n);
         listPrices = new uint256[](n);
         for (uint256 i = 0; i < n; ++i) {
-            uint256 t = start + i;
-            artIds[i] = artOf[t];
-            owners[i] = _ownerOf(t);
-            listPrices[i] = listingOf[t].price;
+            uint256 tkn = start + i;
+            artIds[i] = artOf[tkn];
+            owners[i] = _ownerOf(tkn);
+            listPrices[i] = listingOf[tkn].price;
         }
     }
 
@@ -202,7 +270,6 @@ contract SmokinFrogHotbox is ERC721, ERC2981, Ownable, ReentrancyGuard {
         return string.concat(baseURI, artOf[tokenId].toString(), ".json");
     }
 
-    /// @notice Collection-level metadata (OpenSea-style contractURI).
     function contractURI() external view returns (string memory) {
         return string.concat(baseURI, "collection.json");
     }
@@ -221,18 +288,12 @@ contract SmokinFrogHotbox is ERC721, ERC2981, Ownable, ReentrancyGuard {
     function setPayout(address newPayout) external onlyOwner {
         require(newPayout != address(0), "zero payout");
         payout = newPayout;
-        _setDefaultRoyalty(newPayout, 500);
+        _setDefaultRoyalty(newPayout, ROYALTY_BPS);
         emit PayoutChanged(newPayout);
     }
 
-    /// @notice Append `n` new artworks (each starting at BASE_PRICE).
-    function addArts(uint256 n) external onlyOwner {
-        require(n > 0, "zero");
-        artCount += n;
-        emit ArtsAdded(artCount);
-    }
-
-    /// @notice Emergency lever: override the current price of one artwork.
+    /// @notice Emergency lever: override the current price of one artwork. Cannot
+    ///         change its edition cap or the fixed max supply.
     function setPrice(uint256 artId, uint256 newPrice) external onlyOwner {
         require(artId >= 1 && artId <= artCount, "unknown art");
         require(newPrice > 0, "zero price");
