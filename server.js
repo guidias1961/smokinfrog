@@ -19,7 +19,13 @@ const MIME = {
 };
 
 http.createServer((req, res) => {
-  let urlPath = decodeURIComponent(req.url.split('?')[0]);
+  let urlPath;
+  try {
+    urlPath = decodeURIComponent(req.url.split('?')[0]);
+  } catch (e) {
+    res.writeHead(400);
+    return res.end('bad request');
+  }
   if (urlPath === '/') urlPath = '/index.html';
 
   const filePath = path.join(ROOT, path.normalize(urlPath));
@@ -37,6 +43,7 @@ http.createServer((req, res) => {
     res.writeHead(200, {
       'Content-Type': MIME[ext] || 'application/octet-stream',
       'Cache-Control': ext === '.html' ? 'no-cache' : 'public, max-age=86400',
+      'Access-Control-Allow-Origin': '*',
     });
     res.end(data);
   });

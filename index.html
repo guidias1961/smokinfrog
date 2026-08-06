@@ -820,6 +820,153 @@
     section { padding: 3.2rem 1.1rem; }
     .console { padding-left: 1.1rem; padding-right: 1.1rem; }
   }
+  /* ============ HOTBOX HANGAR — NFT BAY ============ */
+  .hangar-brief { max-width: 62ch; color: var(--phos-text); margin-bottom: 1.2rem; }
+  .hangar-brief b { color: var(--readout); font-weight: 600; }
+  .hangar-deck {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.7rem 1.4rem;
+    font-family: 'VT323', monospace;
+    font-size: 1.15rem;
+    letter-spacing: 0.5px;
+    background: #0a0f0a;
+    border: 1px solid var(--phos-dim);
+    padding: 0.6rem 0.9rem;
+    margin-bottom: 1.4rem;
+  }
+  .hangar-deck .stat { color: var(--phos-text); }
+  .hangar-deck .stat b { color: var(--phos); font-weight: 400; }
+  .hangar-deck .spacer { flex: 1; }
+  .wallet-key {
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    padding: 0.45rem 1.1rem;
+    background: #0a0f0a;
+    color: var(--lime);
+    border: 1px solid var(--lime);
+    border-bottom-width: 4px;
+    cursor: pointer;
+  }
+  .wallet-key:hover { background: var(--lime); color: var(--console); }
+  .wallet-key:active { border-bottom-width: 1px; transform: translateY(3px); }
+  .wallet-key[disabled] { color: var(--phos-dim); border-color: var(--phos-dim); cursor: not-allowed; }
+  .wallet-key[disabled]:hover { background: #0a0f0a; color: var(--phos-dim); }
+  .wallet-key.warn { color: var(--amber); border-color: var(--amber); }
+  .wallet-key.warn:hover { background: var(--amber); color: var(--console); }
+  .crate-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(158px, 1fr));
+    gap: 0.8rem;
+  }
+  .crate {
+    background: #101410;
+    border: 1px solid #202a20;
+    box-shadow: inset 0 0 0 2px #060906;
+    padding: 7px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+  .crate img {
+    width: 100%;
+    height: auto;
+    display: block;
+    cursor: pointer;
+    filter: saturate(0.92);
+  }
+  .crate img:hover { filter: saturate(1.1) brightness(1.06); }
+  .crate .crate-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: 'VT323', monospace;
+    font-size: 1.05rem;
+    letter-spacing: 0.5px;
+    color: var(--phos-text);
+    padding: 0 2px;
+  }
+  .crate .crate-row .price { color: var(--phos); }
+  .crate .crate-row .eds { color: var(--phos-text); }
+  .mint-key {
+    font-family: 'VT323', monospace;
+    font-size: 1.1rem;
+    letter-spacing: 1.5px;
+    padding: 0.4rem 0.5rem;
+    background: #0a0f0a;
+    color: var(--lime);
+    border: 1px solid var(--lime);
+    border-bottom-width: 3px;
+    cursor: pointer;
+    width: 100%;
+  }
+  .mint-key:hover { background: var(--lime); color: var(--console); }
+  .mint-key:active { border-bottom-width: 1px; transform: translateY(2px); }
+  .mint-key[disabled] { color: var(--phos-dim); border-color: var(--phos-dim); cursor: not-allowed; }
+  .mint-key[disabled]:hover { background: #0a0f0a; color: var(--phos-dim); }
+  .mint-key.busy { color: var(--amber); border-color: var(--amber); }
+  .hangar-log {
+    font-family: 'VT323', monospace;
+    font-size: 1.1rem;
+    letter-spacing: 0.5px;
+    color: var(--phos-text);
+    background: #0a0f0a;
+    border: 1px solid var(--phos-dim);
+    padding: 0.6rem 0.9rem;
+    margin-top: 1.2rem;
+    min-height: 2.4rem;
+    max-height: 9rem;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+  .hangar-log .ok { color: var(--phos); }
+  .hangar-log .err { color: var(--klaxon); }
+  .hangar-log a { color: var(--lime); }
+  .hangar-note { margin-top: 1rem; color: var(--phos-text); font-size: 0.85rem; max-width: 70ch; }
+  .hangar-note a { color: var(--lime); }
+  dialog.crate-view {
+    background: #101410;
+    border: 1px solid var(--phos-dim);
+    box-shadow: inset 0 0 0 2px #060906, 0 0 60px rgba(0,0,0,0.9);
+    padding: 10px;
+    max-width: min(92vw, 560px);
+    color: var(--readout);
+  }
+  dialog.crate-view::backdrop { background: rgba(2,4,2,0.85); }
+  dialog.crate-view img { width: 100%; height: auto; display: block; }
+  dialog.crate-view .crate-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: 'VT323', monospace;
+    font-size: 1.3rem;
+    padding: 0.6rem 2px 0.2rem;
+    color: var(--phos);
+    gap: 0.8rem;
+  }
+  dialog.crate-view .mint-key { width: auto; padding: 0.4rem 1.4rem; }
+  .picker-list { display: flex; flex-direction: column; gap: 0.5rem; min-width: 260px; }
+  .picker-list button {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: 'VT323', monospace;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+    padding: 0.5rem 0.8rem;
+    background: #0a0f0a;
+    color: var(--phos);
+    border: 1px solid var(--phos-dim);
+    cursor: pointer;
+  }
+  .picker-list button:hover { border-color: var(--lime); color: var(--lime); }
+  .picker-list img { width: 22px; height: 22px; }
+  @media (max-width: 480px) {
+    .crate-grid { grid-template-columns: repeat(auto-fill, minmax(128px, 1fr)); }
+  }
 </style>
 </head>
 <body>
@@ -975,8 +1122,51 @@
   </div>
 </section>
 
+<section id="hangar">
+  <div class="sec-label">CARGO / 04</div>
+  <h2 class="sec-title">HOTBOX HANGAR — 99 OPEN EDITIONS</h2>
+
+  <p class="hangar-brief">
+    ninety-nine frames of the subject, pulled from hotbox surveillance. every artwork is an
+    <b>open edition on robinhood chain</b>: first mint of any art costs <b>0.01 ETH</b>, and every
+    mint of that same art raises its price by <b>5%</b>. on-chain, permissionless, forever.
+    minted funds route straight to the mission treasury.
+  </p>
+
+  <div class="hangar-deck">
+    <span class="stat">BAY: <b id="hgBay">ARMING</b></span>
+    <span class="stat">MINTED: <b id="hgMinted">—</b></span>
+    <span class="stat">FLOOR: <b id="hgFloor">—</b></span>
+    <span class="spacer"></span>
+    <span class="stat" id="hgOperator"></span>
+    <button class="wallet-key" id="hgConnect">CONNECT WALLET</button>
+  </div>
+
+  <div class="crate-grid" id="crateGrid"></div>
+
+  <div class="hangar-log" id="hangarLog">&gt; hangar console ready.</div>
+
+  <p class="hangar-note" id="hgContractNote">
+    [!] the hangar is its own NFT contract and is <b>NOT</b> the $SFROG token CA — that one still
+    drops at T-0 on official comms only. mints are irreversible; art is served from this console.
+  </p>
+</section>
+
+<dialog class="crate-view" id="crateView">
+  <img id="cvImg" src="" alt="">
+  <div class="crate-row">
+    <span id="cvName">#—</span>
+    <span id="cvPrice">—</span>
+    <button class="mint-key" id="cvMint">MINT</button>
+  </div>
+</dialog>
+
+<dialog class="crate-view" id="walletPicker">
+  <div class="picker-list" id="pickerList"></div>
+</dialog>
+
 <section id="venue">
-  <div class="sec-label">FLIGHT RECORD / 04</div>
+  <div class="sec-label">FLIGHT RECORD / 05</div>
   <h2 class="sec-title">THE PAD: POOLS.TRADE × ROBINHOOD CHAIN</h2>
 
   <div class="venue-line">
@@ -1001,7 +1191,7 @@
 </section>
 
 <section id="flightdata">
-  <div class="sec-label">TELEMETRY / 05</div>
+  <div class="sec-label">TELEMETRY / 06</div>
   <h2 class="sec-title">FLIGHT DATA</h2>
 
   <div class="supply">SUPPLY: [ TBA ]</div>
@@ -1034,7 +1224,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
 </section>
 
 <section id="preflight">
-  <div class="sec-label">PROCEDURE / 06</div>
+  <div class="sec-label">PROCEDURE / 07</div>
   <h2 class="sec-title">PRE-FLIGHT CHECKLIST</h2>
   <ul class="checklist">
     <li>
@@ -1061,7 +1251,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
 </section>
 
 <section id="security">
-  <div class="sec-label">NOTICE / 07</div>
+  <div class="sec-label">NOTICE / 08</div>
   <h2 class="sec-title">SECURITY NOTICE <span class="amber">— READ BEFORE APING</span></h2>
   <div class="hazard">
     <div class="hazard-inner">
@@ -1083,7 +1273,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
 
 <footer>
   <div class="comms">
-    <div class="sec-label">COMMS / 08</div>
+    <div class="sec-label">COMMS / 09</div>
     <h2 class="sec-title">CHANNELS</h2>
     <div class="freq">
       <span class="band">FREQ 01 · X</span>
@@ -1154,9 +1344,10 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     'DESTINATION: UNISWAP V4',
     'SUPPLY: TBA — SET AT LAUNCH',
     MISSION.CA ? 'CA: LIVE — VERIFY ON OFFICIAL COMMS' : 'CA: TBA — TRUST ONLY OFFICIAL COMMS',
+    'HANGAR: 99 OPEN EDITIONS · 0.01 ETH START · +5% PER MINT',
     'CANON SINCE 2008 · BOY\'S CLUB UNIVERSE',
     'FAIR LAUNCH · NO PRESALE · NO TEAM BAG',
-    '[BRIEFING]#briefing', '[NIGHT WATCH]#nightwatch', '[ARCHIVE]#archive', '[THE PAD]#venue',
+    '[BRIEFING]#briefing', '[NIGHT WATCH]#nightwatch', '[ARCHIVE]#archive', '[HANGAR]#hangar', '[THE PAD]#venue',
     '[FLIGHT DATA]#flightdata', '[PRE-FLIGHT]#preflight', '[SECURITY]#security'
   ];
   // duplicate track content for a seamless -50% loop
@@ -1201,6 +1392,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     '> pad ................ pools.trade [UNISWAP]',
     '> chain .............. robinhood 4663 · gas: ETH',
     '> destination ........ uniswap v4',
+    '> hangar ............. 99 crates · open editions',
     '> STATUS: ' + MISSION.STATUS.replace('…', '')
   ];
   (function bootSequence() {
@@ -1270,6 +1462,373 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       }
       setTimeout(() => { key.textContent = 'COPY CA'; }, 1600);
     });
+  })();
+
+  // ======================================================================
+  // HOTBOX HANGAR — open-edition NFT bay.
+  // At NFT deploy: set HANGAR.CONTRACT to the SmokinFrogHotbox address.
+  // Everything below reads the chain via the public RPC and mints through
+  // whatever EIP-6963 / injected wallet the operator picks.
+  // ======================================================================
+  const HANGAR = {
+    CONTRACT: null,                 // SmokinFrogHotbox address after deploy
+    CHAIN_ID_HEX: '0x1237',         // 4663
+    CHAIN_NAME: 'Robinhood Chain',
+    RPC: 'https://rpc.mainnet.chain.robinhood.com',
+    EXPLORER: 'https://robinhoodchain.blockscout.com',
+    ARTS: 99,
+    BASE_PRICE_WEI: 10000000000000000n,
+    SEL_GET_STATE: '0x1865c57d',    // getState()
+    SEL_MINT: '0xa0712d68',         // mint(uint256)
+    SEL_PRICE_OF: '0xb9186d7d',     // priceOf(uint256)
+    TOPIC_MINTED: '0x19f5f791ee407773427bf7b970bbbc3375065c32edd1ab142e23a84f94b0719b'
+  };
+
+  (function hangarBay() {
+    const grid = $('crateGrid');
+    const logEl = $('hangarLog');
+    const bayEl = $('hgBay');
+    const mintedEl = $('hgMinted');
+    const floorEl = $('hgFloor');
+    const operatorEl = $('hgOperator');
+    const connectBtn = $('hgConnect');
+    const view = $('crateView');
+    const picker = $('walletPicker');
+
+    const state = {
+      prices: Array(HANGAR.ARTS).fill(HANGAR.BASE_PRICE_WEI),
+      minted: Array(HANGAR.ARTS).fill(0n),
+      loaded: false
+    };
+    const wallet = { provider: null, account: null, chainOk: false, providers: [] };
+    let viewArt = 0;
+    let pending = false;
+
+    // ---- helpers ----
+    const short = (a) => a.slice(0, 6) + '…' + a.slice(-4);
+    const pad32 = (n) => BigInt(n).toString(16).padStart(64, '0');
+
+    function weiToEth(wei) {
+      const one = 1000000000000000000n;
+      const q = 1000000000000n; // display quantum: 6 decimals
+      if (wei % q === 0n) {
+        const frac = (wei % one).toString().padStart(18, '0').replace(/0+$/, '');
+        return (wei / one).toString() + (frac ? '.' + frac : '');
+      }
+      const r = (wei + q / 2n) / q; // half-up in millionths, carry-safe
+      const frac = (r % 1000000n).toString().padStart(6, '0').replace(/0+$/, '');
+      return '~' + (r / 1000000n).toString() + (frac ? '.' + frac : '');
+    }
+
+    function log(html, cls) {
+      const line = document.createElement('div');
+      if (cls) line.className = cls;
+      line.innerHTML = '&gt; ' + html;
+      logEl.appendChild(line);
+      while (logEl.children.length > 40) logEl.removeChild(logEl.firstChild);
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    async function rpc(method, params) {
+      const res = await fetch(HANGAR.RPC, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params })
+      });
+      const j = await res.json();
+      if (j.error) throw new Error(j.error.message || 'rpc error');
+      return j.result;
+    }
+
+    const ethCall = (data) =>
+      rpc('eth_call', [{ to: HANGAR.CONTRACT, data }, 'latest']);
+
+    function decodeGetState(hex) {
+      const h = hex.replace(/^0x/, '');
+      const word = (i) => BigInt('0x' + h.slice(i * 64, i * 64 + 64));
+      const readArr = (byteOff) => {
+        const base = Number(byteOff) / 32;
+        const len = Number(word(base));
+        const out = [];
+        for (let i = 0; i < len; i++) out.push(word(base + 1 + i));
+        return out;
+      };
+      return { prices: readArr(word(0)), minted: readArr(word(1)) };
+    }
+
+    // ---- render ----
+    function buildGrid() {
+      for (let i = 1; i <= HANGAR.ARTS; i++) {
+        const crate = document.createElement('div');
+        crate.className = 'crate';
+        crate.innerHTML =
+          '<img src="nft/thumb/' + i + '.webp" alt="Smokin Frog Hotbox #' + i + '" loading="lazy" width="420" height="420" data-view="' + i + '">' +
+          '<div class="crate-row"><span>#' + i + '</span><span class="eds" id="eds-' + i + '">—</span></div>' +
+          '<div class="crate-row"><span class="price" id="price-' + i + '">' + weiToEth(HANGAR.BASE_PRICE_WEI) + ' ETH</span></div>' +
+          '<button class="mint-key" id="mint-' + i + '" data-mint="' + i + '" disabled>ARMING</button>';
+        grid.appendChild(crate);
+      }
+    }
+
+    function refreshCards() {
+      const armed = !!HANGAR.CONTRACT;
+      for (let i = 1; i <= HANGAR.ARTS; i++) {
+        $('price-' + i).textContent = weiToEth(state.prices[i - 1]) + ' ETH';
+        $('eds-' + i).textContent = state.loaded ? '×' + state.minted[i - 1] : '—';
+        const btn = $('mint-' + i);
+        btn.disabled = !armed || pending;
+        if (!pending) {
+          btn.textContent = armed ? 'MINT' : 'ARMING';
+          btn.classList.remove('busy');
+        }
+      }
+      bayEl.textContent = armed ? (state.loaded ? 'OPEN' : 'LINKING…') : 'ARMING';
+      if (state.loaded) {
+        mintedEl.textContent = String(state.minted.reduce((a, b) => a + b, 0n));
+        floorEl.textContent = weiToEth(state.prices.reduce((a, b) => (b < a ? b : a))) + ' ETH';
+      }
+      if (viewArt) {
+        $('cvPrice').textContent = weiToEth(state.prices[viewArt - 1]) + ' ETH';
+        const cv = $('cvMint');
+        cv.disabled = !armed || pending;
+        if (!pending) {
+          cv.textContent = 'MINT';
+          cv.classList.remove('busy');
+        }
+      }
+    }
+
+    async function loadState() {
+      if (!HANGAR.CONTRACT) return;
+      try {
+        const decoded = decodeGetState(await ethCall(HANGAR.SEL_GET_STATE));
+        if (decoded.prices.length >= HANGAR.ARTS) {
+          state.prices = decoded.prices;
+          state.minted = decoded.minted;
+          state.loaded = true;
+        }
+      } catch (e) {
+        log('telemetry glitch: ' + (e.message || e), 'err');
+      }
+      refreshCards();
+    }
+
+    // ---- wallet ----
+    window.addEventListener('eip6963:announceProvider', (ev) => {
+      if (!wallet.providers.some((p) => p.info.uuid === ev.detail.info.uuid)) {
+        wallet.providers.push(ev.detail);
+      }
+    });
+    window.dispatchEvent(new Event('eip6963:requestProvider'));
+
+    function pickProvider() {
+      return new Promise((resolve) => {
+        if (wallet.providers.length > 1) {
+          const list = $('pickerList');
+          list.innerHTML = '';
+          wallet.providers.forEach((p) => {
+            const b = document.createElement('button');
+            b.innerHTML = (p.info.icon ? '<img src="' + p.info.icon + '" alt="">' : '') + p.info.name;
+            b.addEventListener('click', () => { picker.close(); resolve(p.provider); });
+            list.appendChild(b);
+          });
+          // 'close' fires for esc, backdrop click and button clicks alike; a
+          // button's resolve(provider) settles the promise first, so this
+          // late resolve is a no-op except for genuine dismissals
+          picker.addEventListener('close', () => resolve('dismissed'), { once: true });
+          picker.showModal();
+        } else if (wallet.providers.length === 1) {
+          resolve(wallet.providers[0].provider);
+        } else {
+          resolve(window.ethereum || null);
+        }
+      });
+    }
+
+    async function ensureChain(provider) {
+      const cid = await provider.request({ method: 'eth_chainId' });
+      if (cid === HANGAR.CHAIN_ID_HEX) return true;
+      try {
+        await provider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: HANGAR.CHAIN_ID_HEX }]
+        });
+        return true;
+      } catch (e) {
+        if (e && (e.code === 4902 || (e.data && e.data.originalError && e.data.originalError.code === 4902))) {
+          await provider.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: HANGAR.CHAIN_ID_HEX,
+              chainName: HANGAR.CHAIN_NAME,
+              nativeCurrency: { name: 'Ether', symbol: 'ETH', decimals: 18 },
+              rpcUrls: [HANGAR.RPC],
+              blockExplorerUrls: [HANGAR.EXPLORER]
+            }]
+          });
+          return (await provider.request({ method: 'eth_chainId' })) === HANGAR.CHAIN_ID_HEX;
+        }
+        throw e;
+      }
+    }
+
+    function paintWallet() {
+      if (!wallet.account) {
+        connectBtn.textContent = 'CONNECT WALLET';
+        connectBtn.classList.remove('warn');
+        operatorEl.textContent = '';
+        return;
+      }
+      connectBtn.textContent = short(wallet.account);
+      connectBtn.classList.toggle('warn', !wallet.chainOk);
+      operatorEl.innerHTML = wallet.chainOk
+        ? 'CHAIN 4663 <span style="color:var(--phos)">✓</span>'
+        : '<span style="color:var(--amber)">WRONG CHAIN — CLICK YOUR ADDRESS</span>';
+    }
+
+    async function connect() {
+      try {
+        const provider = wallet.provider || await pickProvider();
+        if (provider === 'dismissed') {
+          log('wallet picker dismissed.');
+          return null;
+        }
+        if (!provider) {
+          log('no wallet found. open this console inside your wallet\'s browser.', 'err');
+          return null;
+        }
+        wallet.provider = provider;
+        const accounts = await provider.request({ method: 'eth_requestAccounts' });
+        wallet.account = accounts && accounts[0] ? accounts[0] : null;
+        if (!wallet.account) return null;
+        wallet.chainOk = await ensureChain(provider);
+        if (provider.on && !provider._hangarHooked) {
+          provider._hangarHooked = true;
+          provider.on('accountsChanged', (acc) => {
+            wallet.account = acc && acc[0] ? acc[0] : null;
+            paintWallet();
+          });
+          provider.on('chainChanged', (cid) => {
+            wallet.chainOk = cid === HANGAR.CHAIN_ID_HEX;
+            paintWallet();
+          });
+        }
+        paintWallet();
+        if (wallet.chainOk) log('operator linked: ' + short(wallet.account), 'ok');
+        else log('operator linked, wrong chain — switch to robinhood chain (4663).', 'err');
+        return wallet.chainOk ? wallet : null;
+      } catch (e) {
+        if (e && e.code === 4001) log('link aborted by operator.');
+        else log('link failed: ' + (e.message || e), 'err');
+        return null;
+      }
+    }
+
+    // ---- mint ----
+    async function doMint(artId, btn) {
+      if (!HANGAR.CONTRACT || pending) return;
+      pending = true; // set before any await — double-clicks bounce off here
+      btn.classList.add('busy');
+      btn.textContent = 'SIGN…';
+      refreshCards(); // disables every mint key while a tx is in flight
+      try {
+        const w = (wallet.account && wallet.chainOk) ? wallet : await connect();
+        if (!w) return;
+        // the wallet may have hopped chains since connect — re-verify before signing
+        wallet.chainOk = await ensureChain(wallet.provider);
+        paintWallet();
+        if (!wallet.chainOk) {
+          log('wrong chain — switch to robinhood chain (4663) and retry.', 'err');
+          return;
+        }
+        // re-read the live price, then pay one ratchet step of race headroom;
+        // the contract refunds everything above the real price in the same tx
+        const fresh = BigInt(await ethCall(HANGAR.SEL_PRICE_OF + pad32(artId)));
+        state.prices[artId - 1] = fresh;
+        const buffered = (fresh * 105n) / 100n;
+        log('mint #' + artId + ' — ' + weiToEth(fresh) + ' ETH (+5% race buffer, auto-refunded). awaiting signature…');
+        const txHash = await wallet.provider.request({
+          method: 'eth_sendTransaction',
+          params: [{
+            from: wallet.account,
+            to: HANGAR.CONTRACT,
+            value: '0x' + buffered.toString(16),
+            data: HANGAR.SEL_MINT + pad32(artId)
+          }]
+        });
+        btn.textContent = 'MINING…';
+        log('tx sent: <a href="' + HANGAR.EXPLORER + '/tx/' + txHash + '" target="_blank" rel="noopener">' + short(txHash) + '</a> — waiting for confirmation…');
+        const receipt = await waitReceipt(txHash);
+        if (receipt && receipt.status === '0x1') {
+          const tokenId = mintedTokenId(receipt);
+          log('CONFIRMED — hotbox #' + artId + (tokenId ? ' · token #' + tokenId : '') + ' is yours. <a href="' + HANGAR.EXPLORER + '/tx/' + txHash + '" target="_blank" rel="noopener">receipt</a>', 'ok');
+        } else if (receipt) {
+          log('tx reverted — the price probably moved. board refreshed, try again.', 'err');
+        } else {
+          log('still mining after 100s — check the <a href="' + HANGAR.EXPLORER + '/tx/' + txHash + '" target="_blank" rel="noopener">explorer</a>.', 'err');
+        }
+      } catch (e) {
+        if (e && e.code === 4001) log('mint #' + artId + ' aborted by operator.');
+        else if (/insufficient/i.test(e.message || '')) log('insufficient ETH for price + gas on chain 4663.', 'err');
+        else log('mint failed: ' + (e.message || e), 'err');
+      } finally {
+        pending = false;
+        await loadState();
+      }
+    }
+
+    async function waitReceipt(txHash) {
+      for (let i = 0; i < 40; i++) {
+        await new Promise((r) => setTimeout(r, 2500));
+        try {
+          const rec = await rpc('eth_getTransactionReceipt', [txHash]);
+          if (rec) return rec;
+        } catch (e) { /* transient rpc hiccup — keep polling */ }
+      }
+      return null;
+    }
+
+    function mintedTokenId(receipt) {
+      const lg = (receipt.logs || []).find(
+        (l) => l.topics && l.topics[0] === HANGAR.TOPIC_MINTED &&
+               l.address && l.address.toLowerCase() === HANGAR.CONTRACT.toLowerCase()
+      );
+      return lg ? BigInt(lg.topics[3]).toString() : null;
+    }
+
+    // ---- wiring ----
+    buildGrid();
+    refreshCards();
+
+    connectBtn.addEventListener('click', connect);
+    grid.addEventListener('click', (ev) => {
+      const mintId = ev.target.getAttribute && ev.target.getAttribute('data-mint');
+      if (mintId) return doMint(Number(mintId), ev.target);
+      const viewId = ev.target.getAttribute && ev.target.getAttribute('data-view');
+      if (viewId) {
+        viewArt = Number(viewId);
+        $('cvImg').src = 'nft/art/' + viewArt + '.webp';
+        $('cvImg').alt = 'Smokin Frog Hotbox #' + viewArt;
+        $('cvName').textContent = 'HOTBOX #' + viewArt;
+        refreshCards();
+        view.showModal();
+      }
+    });
+    $('cvMint').addEventListener('click', (ev) => doMint(viewArt, ev.target));
+    view.addEventListener('click', (ev) => { if (ev.target === view) view.close(); });
+    picker.addEventListener('click', (ev) => { if (ev.target === picker) picker.close(); });
+
+    if (HANGAR.CONTRACT) {
+      const note = $('hgContractNote');
+      note.innerHTML =
+        'hangar contract: <a href="' + HANGAR.EXPLORER + '/address/' + HANGAR.CONTRACT + '" target="_blank" rel="noopener">' + HANGAR.CONTRACT + '</a>' +
+        ' — verify it yourself. this is the NFT contract, <b>NOT</b> the $SFROG token CA; that one still drops at T-0 on official comms only. mints are irreversible.';
+      loadState();
+      setInterval(loadState, 30000);
+      document.addEventListener('visibilitychange', () => {
+        if (!document.hidden) loadState();
+      });
+    }
   })();
 </script>
 </body>
