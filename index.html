@@ -1956,7 +1956,8 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
         } catch (_) {}
         try { sf.subscribeAccount(() => tryResolve()); } catch (_) {}
         iv = setInterval(tryResolve, 250);
-        if (!tryResolve()) { try { sf.open(); } catch (e) { finish(false); } }
+        // a top-layer <dialog> would occlude AppKit's modal, so close the card first
+        if (!tryResolve()) { try { if (view.open) view.close(); sf.open(); } catch (e) { finish(false); } }
         setTimeout(() => finish(false), 120000); // backstop only
       });
     }
@@ -2048,7 +2049,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       await readChainOk();
       if (!wallet.chainOk) {
         if (wallet.viaAppKit && window.__sfrogAppKit) {
-          try { await window.__sfrogAppKit.switch(); } catch (_) {}
+          try { if (view.open) view.close(); await window.__sfrogAppKit.switch(); } catch (_) {}
           await readChainOk();
         } else {
           try { wallet.chainOk = await ensureChainInjected(wallet.provider); } catch (_) { wallet.chainOk = false; }
