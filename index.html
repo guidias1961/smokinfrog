@@ -927,6 +927,42 @@
   .hangar-log a { color: var(--lime); }
   .hangar-note { margin-top: 1rem; color: var(--phos-text); font-size: 0.85rem; max-width: 70ch; }
   .hangar-note a { color: var(--lime); }
+  .bay-title {
+    font-family: 'VT323', monospace;
+    font-size: 1.5rem;
+    font-weight: 400;
+    letter-spacing: 2px;
+    color: var(--phos);
+    margin: 2.2rem 0 0.2rem;
+  }
+  .bay-cap { color: var(--phos-text); font-size: 0.85rem; margin-bottom: 0.9rem; max-width: 70ch; }
+  .bay-empty {
+    font-family: 'VT323', monospace;
+    font-size: 1.15rem;
+    letter-spacing: 0.5px;
+    color: var(--phos-dim);
+    border: 1px dashed var(--phos-dim);
+    padding: 1.1rem;
+    text-align: center;
+  }
+  .crate .seller { color: var(--phos-dim); font-size: 0.95rem; }
+  .price-in {
+    font-family: 'VT323', monospace;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    width: 100%;
+    padding: 0.35rem 0.5rem;
+    background: #060906;
+    color: var(--readout);
+    border: 1px solid var(--phos-dim);
+    outline: none;
+  }
+  .price-in:focus { border-color: var(--phos); }
+  .price-in::placeholder { color: var(--phos-dim); }
+  .key-row { display: flex; gap: 0.35rem; }
+  .key-row .mint-key { flex: 1; }
+  .mint-key.ghost { color: var(--phos-text); border-color: var(--phos-dim); }
+  .mint-key.ghost:hover { background: var(--phos-dim); color: var(--console); }
   dialog.crate-view {
     background: #101410;
     border: 1px solid var(--phos-dim);
@@ -1130,7 +1166,8 @@
     ninety-nine frames of the subject, pulled from hotbox surveillance. every artwork is an
     <b>open edition on robinhood chain</b>: first mint of any art costs <b>0.01 ETH</b>, and every
     mint of that same art raises its price by <b>5%</b>. on-chain, permissionless, forever.
-    minted funds route straight to the mission treasury.
+    minted funds route straight to the mission treasury. minted a crate? <b>name your own resale
+    price</b> in the swap meet below — sales pay you directly, 5% royalty feeds the mission.
   </p>
 
   <div class="hangar-deck">
@@ -1145,6 +1182,16 @@
   <div class="crate-grid" id="crateGrid"></div>
 
   <div class="hangar-log" id="hangarLog">&gt; hangar console ready.</div>
+
+  <h3 class="bay-title">SWAP MEET — OPERATOR LISTINGS</h3>
+  <p class="bay-cap">crates other operators put up for sale, at whatever price they named.
+    seller gets 95%, the mission treasury takes 5% of every resale.</p>
+  <div class="crate-grid" id="swapGrid"></div>
+  <div class="bay-empty" id="swapEmpty">no crates listed yet. mint one below cost and name your price.</div>
+
+  <h3 class="bay-title">YOUR CRATES</h3>
+  <p class="bay-cap" id="yoursCap">link your wallet to see your crates and set sale prices.</p>
+  <div class="crate-grid" id="yoursGrid"></div>
 
   <p class="hangar-note" id="hgContractNote">
     [!] the hangar is its own NFT contract and is <b>NOT</b> the $SFROG token CA — that one still
@@ -1345,6 +1392,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     'SUPPLY: TBA — SET AT LAUNCH',
     MISSION.CA ? 'CA: LIVE — VERIFY ON OFFICIAL COMMS' : 'CA: TBA — TRUST ONLY OFFICIAL COMMS',
     'HANGAR: 99 OPEN EDITIONS · 0.01 ETH START · +5% PER MINT',
+    'SWAP MEET: RESELL YOUR CRATES AT YOUR OWN PRICE',
     'CANON SINCE 2008 · BOY\'S CLUB UNIVERSE',
     'FAIR LAUNCH · NO PRESALE · NO TEAM BAG',
     '[BRIEFING]#briefing', '[NIGHT WATCH]#nightwatch', '[ARCHIVE]#archive', '[HANGAR]#hangar', '[THE PAD]#venue',
@@ -1471,7 +1519,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
   // whatever EIP-6963 / injected wallet the operator picks.
   // ======================================================================
   const HANGAR = {
-    CONTRACT: null,                 // SmokinFrogHotbox address after deploy
+    CONTRACT: '0xd0e5db34B36b85B0c7dc162f0A89CB45166bcCC9', // SmokinFrogHotbox on chain 4663
     CHAIN_ID_HEX: '0x1237',         // 4663
     CHAIN_NAME: 'Robinhood Chain',
     RPC: 'https://rpc.mainnet.chain.robinhood.com',
@@ -1481,7 +1529,13 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     SEL_GET_STATE: '0x1865c57d',    // getState()
     SEL_MINT: '0xa0712d68',         // mint(uint256)
     SEL_PRICE_OF: '0xb9186d7d',     // priceOf(uint256)
-    TOPIC_MINTED: '0x19f5f791ee407773427bf7b970bbbc3375065c32edd1ab142e23a84f94b0719b'
+    SEL_TOTAL_MINTED: '0xa2309ff8', // totalMinted()
+    SEL_GET_TOKENS: '0x494cfc6c',   // getTokens(uint256,uint256)
+    SEL_LIST: '0x67d36903',         // list(uint256,uint96)
+    SEL_DELIST: '0x964bc33f',       // delist(uint256)
+    SEL_BUY: '0xd96a094a',          // buy(uint256)
+    TOPIC_MINTED: '0x19f5f791ee407773427bf7b970bbbc3375065c32edd1ab142e23a84f94b0719b',
+    TOPIC_BOUGHT: '0xc64c7a18cde66673e7f1108933482694fe68508b5086596a0498ceca0efbbcad'
   };
 
   (function hangarBay() {
@@ -1498,11 +1552,14 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     const state = {
       prices: Array(HANGAR.ARTS).fill(HANGAR.BASE_PRICE_WEI),
       minted: Array(HANGAR.ARTS).fill(0n),
+      tokens: [],   // [{id, art, owner, listPrice}] — the whole token board
       loaded: false
     };
     const wallet = { provider: null, account: null, chainOk: false, providers: [] };
     let viewArt = 0;
     let pending = false;
+    let pendingKey = null;   // 'buy:12' | 'list:12' | 'delist:12' — market ops only
+    let pendingLabel = '';
 
     // ---- helpers ----
     const short = (a) => a.slice(0, 6) + '…' + a.slice(-4);
@@ -1543,17 +1600,27 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     const ethCall = (data) =>
       rpc('eth_call', [{ to: HANGAR.CONTRACT, data }, 'latest']);
 
-    function decodeGetState(hex) {
+    // decode n dynamic uint256[]/address[] returns (head offsets, then len+items)
+    function decodeDynArrays(hex, n) {
       const h = hex.replace(/^0x/, '');
       const word = (i) => BigInt('0x' + h.slice(i * 64, i * 64 + 64));
-      const readArr = (byteOff) => {
-        const base = Number(byteOff) / 32;
+      const out = [];
+      for (let a = 0; a < n; a++) {
+        const base = Number(word(a)) / 32;
         const len = Number(word(base));
-        const out = [];
-        for (let i = 0; i < len; i++) out.push(word(base + 1 + i));
-        return out;
-      };
-      return { prices: readArr(word(0)), minted: readArr(word(1)) };
+        const arr = [];
+        for (let i = 0; i < len; i++) arr.push(word(base + 1 + i));
+        out.push(arr);
+      }
+      return out;
+    }
+
+    function parseEth(str) {
+      const m = /^(\d+)(?:\.(\d{1,18}))?$/.exec((str || '').trim());
+      if (!m) return null;
+      const wei = BigInt(m[1]) * 1000000000000000000n +
+                  BigInt((m[2] || '').padEnd(18, '0'));
+      return wei > 0n ? wei : null;
     }
 
     // ---- render ----
@@ -1596,21 +1663,47 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
           cv.classList.remove('busy');
         }
       }
+      renderMarket();
     }
 
     async function loadState() {
       if (!HANGAR.CONTRACT) return;
       try {
-        const decoded = decodeGetState(await ethCall(HANGAR.SEL_GET_STATE));
-        if (decoded.prices.length >= HANGAR.ARTS) {
-          state.prices = decoded.prices;
-          state.minted = decoded.minted;
+        const [prices, minted] = decodeDynArrays(await ethCall(HANGAR.SEL_GET_STATE), 2);
+        if (prices.length >= HANGAR.ARTS) {
+          state.prices = prices;
+          state.minted = minted;
           state.loaded = true;
         }
       } catch (e) {
         log('telemetry glitch: ' + (e.message || e), 'err');
       }
       refreshCards();
+    }
+
+    async function loadTokens() {
+      if (!HANGAR.CONTRACT) return;
+      try {
+        const total = Number(BigInt(await ethCall(HANGAR.SEL_TOTAL_MINTED)));
+        const tokens = [];
+        const PAGE = 400;
+        for (let start = 1; start <= total; start += PAGE) {
+          const [arts, owners, listPrices] = decodeDynArrays(
+            await ethCall(HANGAR.SEL_GET_TOKENS + pad32(start) + pad32(PAGE)), 3);
+          for (let i = 0; i < arts.length; i++) {
+            tokens.push({
+              id: start + i,
+              art: Number(arts[i]),
+              owner: '0x' + owners[i].toString(16).padStart(40, '0'),
+              listPrice: listPrices[i]
+            });
+          }
+        }
+        state.tokens = tokens;
+      } catch (e) {
+        log('token board glitch: ' + (e.message || e), 'err');
+      }
+      renderMarket();
     }
 
     // ---- wallet ----
@@ -1677,6 +1770,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
         connectBtn.textContent = 'CONNECT WALLET';
         connectBtn.classList.remove('warn');
         operatorEl.textContent = '';
+        renderMarket();
         return;
       }
       connectBtn.textContent = short(wallet.account);
@@ -1684,6 +1778,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       operatorEl.innerHTML = wallet.chainOk
         ? 'CHAIN 4663 <span style="color:var(--phos)">✓</span>'
         : '<span style="color:var(--amber)">WRONG CHAIN — CLICK YOUR ADDRESS</span>';
+      renderMarket();
     }
 
     async function connect() {
@@ -1724,57 +1819,137 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       }
     }
 
-    // ---- mint ----
-    async function doMint(artId, btn) {
+    // ---- transactions: mint / buy / list / delist share this spine ----
+    async function armWallet() {
+      const w = (wallet.account && wallet.chainOk) ? wallet : await connect();
+      if (!w) return false;
+      // the wallet may have hopped chains since connect — re-verify before signing
+      wallet.chainOk = await ensureChain(wallet.provider);
+      paintWallet();
+      if (!wallet.chainOk) {
+        log('wrong chain — switch to robinhood chain (4663) and retry.', 'err');
+        return false;
+      }
+      return true;
+    }
+
+    // one tx end to end; build() returns {value, data, note} or null to abort.
+    // key ('buy:12' etc) lets renderMarket re-stamp busy state after rebuilds,
+    // since market buttons are destroyed by every render; mint buttons are
+    // stable nodes and pass key=null.
+    async function runTx(btn, key, kind, build, onConfirmed) {
       if (!HANGAR.CONTRACT || pending) return;
       pending = true; // set before any await — double-clicks bounce off here
-      btn.classList.add('busy');
-      btn.textContent = 'SIGN…';
-      refreshCards(); // disables every mint key while a tx is in flight
-      try {
-        const w = (wallet.account && wallet.chainOk) ? wallet : await connect();
-        if (!w) return;
-        // the wallet may have hopped chains since connect — re-verify before signing
-        wallet.chainOk = await ensureChain(wallet.provider);
-        paintWallet();
-        if (!wallet.chainOk) {
-          log('wrong chain — switch to robinhood chain (4663) and retry.', 'err');
-          return;
+      pendingKey = key;
+      const paint = (label) => {
+        pendingLabel = label;
+        let b = btn;
+        if (key) {
+          const cut = key.indexOf(':');
+          b = document.querySelector('[data-' + key.slice(0, cut) + '="' + key.slice(cut + 1) + '"]') || btn;
         }
-        // re-read the live price, then pay one ratchet step of race headroom;
-        // the contract refunds everything above the real price in the same tx
-        const fresh = BigInt(await ethCall(HANGAR.SEL_PRICE_OF + pad32(artId)));
-        state.prices[artId - 1] = fresh;
-        const buffered = (fresh * 105n) / 100n;
-        log('mint #' + artId + ' — ' + weiToEth(fresh) + ' ETH (+5% race buffer, auto-refunded). awaiting signature…');
+        b.classList.add('busy');
+        b.textContent = label;
+        b.disabled = true;
+      };
+      refreshCards();
+      paint('SIGN…');
+      try {
+        if (!(await armWallet())) return;
+        const tx = await build();
+        if (!tx) return;
+        if (tx.note) log(tx.note);
         const txHash = await wallet.provider.request({
           method: 'eth_sendTransaction',
           params: [{
             from: wallet.account,
             to: HANGAR.CONTRACT,
-            value: '0x' + buffered.toString(16),
-            data: HANGAR.SEL_MINT + pad32(artId)
+            value: '0x' + tx.value.toString(16),
+            data: tx.data
           }]
         });
-        btn.textContent = 'MINING…';
+        paint('MINING…');
         log('tx sent: <a href="' + HANGAR.EXPLORER + '/tx/' + txHash + '" target="_blank" rel="noopener">' + short(txHash) + '</a> — waiting for confirmation…');
         const receipt = await waitReceipt(txHash);
         if (receipt && receipt.status === '0x1') {
-          const tokenId = mintedTokenId(receipt);
-          log('CONFIRMED — hotbox #' + artId + (tokenId ? ' · token #' + tokenId : '') + ' is yours. <a href="' + HANGAR.EXPLORER + '/tx/' + txHash + '" target="_blank" rel="noopener">receipt</a>', 'ok');
+          onConfirmed(receipt, txHash);
         } else if (receipt) {
-          log('tx reverted — the price probably moved. board refreshed, try again.', 'err');
+          log(kind + ' reverted — the board probably moved first. refreshed, try again.', 'err');
         } else {
           log('still mining after 100s — check the <a href="' + HANGAR.EXPLORER + '/tx/' + txHash + '" target="_blank" rel="noopener">explorer</a>.', 'err');
         }
       } catch (e) {
-        if (e && e.code === 4001) log('mint #' + artId + ' aborted by operator.');
+        if (e && e.code === 4001) log(kind + ' aborted by operator.');
         else if (/insufficient/i.test(e.message || '')) log('insufficient ETH for price + gas on chain 4663.', 'err');
-        else log('mint failed: ' + (e.message || e), 'err');
+        else log(kind + ' failed: ' + (e.message || e), 'err');
       } finally {
         pending = false;
+        pendingKey = null;
+        pendingLabel = '';
         await loadState();
+        await loadTokens();
       }
+    }
+
+    function doMint(artId, btn) {
+      runTx(btn, null, 'mint #' + artId, async () => {
+        // re-read the live price, then pay one ratchet step of race headroom;
+        // the contract refunds everything above the real price in the same tx
+        const fresh = BigInt(await ethCall(HANGAR.SEL_PRICE_OF + pad32(artId)));
+        state.prices[artId - 1] = fresh;
+        return {
+          value: (fresh * 105n) / 100n,
+          data: HANGAR.SEL_MINT + pad32(artId),
+          note: 'mint #' + artId + ' — ' + weiToEth(fresh) + ' ETH (+5% race buffer, auto-refunded). awaiting signature…'
+        };
+      }, (receipt, txHash) => {
+        const tokenId = mintedTokenId(receipt);
+        log('CONFIRMED — hotbox #' + artId + (tokenId ? ' · token #' + tokenId : '') +
+            ' is yours (<a href="' + HANGAR.EXPLORER + '/tx/' + txHash + '" target="_blank" rel="noopener">receipt</a>).' +
+            ' name a resale price in YOUR CRATES below.', 'ok');
+      });
+    }
+
+    function doBuy(tokenId, priceWei, btn) {
+      // priceWei is the price the CARD displayed — if the seller relisted
+      // higher meanwhile, the contract reverts 'underpaid' instead of the
+      // operator silently paying a price they never saw. Lower relists are
+      // fine: the contract refunds the difference.
+      runTx(btn, 'buy:' + tokenId, 'buy token #' + tokenId, async () => {
+        const tok = state.tokens.find((x) => x.id === tokenId);
+        if (tok && wallet.account && tok.owner.toLowerCase() === wallet.account.toLowerCase()) {
+          log('that crate is already yours — use DELIST in YOUR CRATES.', 'err');
+          return null;
+        }
+        return {
+          value: priceWei,
+          data: HANGAR.SEL_BUY + pad32(tokenId),
+          note: 'buy token #' + tokenId + ' — ' + weiToEth(priceWei) + ' ETH. awaiting signature…'
+        };
+      }, () => {
+        log('CONFIRMED — token #' + tokenId + ' is yours. it lands in YOUR CRATES.', 'ok');
+      });
+    }
+
+    function doList(tokenId, priceWei, btn) {
+      runTx(btn, 'list:' + tokenId, 'list token #' + tokenId, async () => ({
+        value: 0n,
+        data: HANGAR.SEL_LIST + pad32(tokenId) + pad32(priceWei),
+        note: 'list token #' + tokenId + ' @ ' + weiToEth(priceWei) + ' ETH. awaiting signature…'
+      }), () => {
+        delete priceDrafts[tokenId];
+        log('LISTED — token #' + tokenId + ' @ ' + weiToEth(priceWei) + ' ETH, live on the swap meet.', 'ok');
+      });
+    }
+
+    function doDelist(tokenId, btn) {
+      runTx(btn, 'delist:' + tokenId, 'delist token #' + tokenId, async () => ({
+        value: 0n,
+        data: HANGAR.SEL_DELIST + pad32(tokenId),
+        note: 'delist token #' + tokenId + '. awaiting signature…'
+      }), () => {
+        log('DELISTED — token #' + tokenId + ' left the swap meet.', 'ok');
+      });
     }
 
     async function waitReceipt(txHash) {
@@ -1796,6 +1971,145 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       return lg ? BigInt(lg.topics[3]).toString() : null;
     }
 
+    // ---- swap meet + your crates ----
+    const priceDrafts = {}; // tokenId -> half-typed price, survives re-renders
+
+    function crateImg(art) {
+      return '<img src="nft/thumb/' + art + '.webp" alt="Smokin Frog Hotbox #' + art +
+             '" loading="lazy" width="420" height="420" data-view="' + art + '">';
+    }
+
+    function renderMarket() {
+      const swapGrid = $('swapGrid');
+      const yoursGrid = $('yoursGrid');
+      // a focused price input survives the rebuild: save it, rebuild, restore
+      const ae = document.activeElement;
+      let keep = null;
+      if (ae && ae.tagName === 'INPUT' && yoursGrid.contains(ae)) {
+        keep = {
+          id: ae.getAttribute('data-price-for'),
+          value: ae.value,
+          s: ae.selectionStart,
+          e: ae.selectionEnd
+        };
+        priceDrafts[keep.id] = ae.value;
+      }
+      const me = (wallet.account || '').toLowerCase();
+
+      const listed = state.tokens.filter((t) => t.listPrice > 0n);
+      swapGrid.innerHTML = '';
+      listed.forEach((t) => {
+        const mine = me && t.owner.toLowerCase() === me;
+        const card = document.createElement('div');
+        card.className = 'crate';
+        card.innerHTML =
+          crateImg(t.art) +
+          '<div class="crate-row"><span>TOKEN #' + t.id + '</span><span class="eds">ART #' + t.art + '</span></div>' +
+          '<div class="crate-row"><span class="price">' + weiToEth(t.listPrice) + ' ETH</span><span class="seller">' + (mine ? 'YOURS' : short(t.owner)) + '</span></div>' +
+          (mine
+            ? '<button class="mint-key ghost" data-delist="' + t.id + '"' + (pending ? ' disabled' : '') + '>DELIST</button>'
+            : '<button class="mint-key" data-buy="' + t.id + '" data-price="' + t.listPrice.toString() + '"' + (pending ? ' disabled' : '') + '>BUY</button>');
+        swapGrid.appendChild(card);
+      });
+      $('swapEmpty').style.display = listed.length ? 'none' : '';
+
+      const mine = me ? state.tokens.filter((t) => t.owner.toLowerCase() === me) : [];
+      yoursGrid.innerHTML = '';
+      mine.forEach((t) => {
+        const card = document.createElement('div');
+        card.className = 'crate';
+        const draft = (priceDrafts[t.id] || '').replace(/[^0-9.]/g, '');
+        card.innerHTML =
+          crateImg(t.art) +
+          '<div class="crate-row"><span>TOKEN #' + t.id + '</span><span class="eds">ART #' + t.art + '</span></div>' +
+          '<div class="crate-row">' + (t.listPrice > 0n
+            ? '<span class="price">LISTED @ ' + weiToEth(t.listPrice) + ' ETH</span>'
+            : '<span class="eds">NOT LISTED</span>') + '</div>' +
+          '<input class="price-in" data-price-for="' + t.id + '" placeholder="price in ETH" value="' + draft + '">' +
+          '<div class="key-row">' +
+            '<button class="mint-key" data-list="' + t.id + '"' + (pending ? ' disabled' : '') + '>' + (t.listPrice > 0n ? 'UPDATE' : 'LIST') + '</button>' +
+            (t.listPrice > 0n ? '<button class="mint-key ghost" data-delist="' + t.id + '"' + (pending ? ' disabled' : '') + '>DELIST</button>' : '') +
+          '</div>';
+        yoursGrid.appendChild(card);
+      });
+      $('yoursCap').textContent = me
+        ? (mine.length
+            ? 'your crates. name a price and LIST — sales pay you 95%, the mission takes 5%.'
+            : 'link established. mint a crate above and it lands here.')
+        : 'link your wallet to see your crates and set sale prices.';
+
+      if (keep) {
+        const input = document.querySelector('input[data-price-for="' + keep.id + '"]');
+        if (input) {
+          input.value = keep.value;
+          input.focus();
+          try { input.setSelectionRange(keep.s, keep.e); } catch (e) { /* type=text always supports it */ }
+        }
+      }
+      // re-stamp the in-flight market button after the rebuild wiped it
+      if (pending && pendingKey) {
+        const cut = pendingKey.indexOf(':');
+        const b = document.querySelector('[data-' + pendingKey.slice(0, cut) + '="' + pendingKey.slice(cut + 1) + '"]');
+        if (b) {
+          b.classList.add('busy');
+          b.textContent = pendingLabel;
+          b.disabled = true;
+        }
+      }
+    }
+
+    function marketClick(ev) {
+      const el = ev.target;
+      if (!el.getAttribute) return;
+      const buyId = el.getAttribute('data-buy');
+      if (buyId) {
+        const tok = state.tokens.find((x) => x.id === Number(buyId));
+        if (!tok || tok.listPrice === 0n) {
+          log('token #' + buyId + ' is no longer listed — refreshing the board.', 'err');
+          loadTokens();
+          return;
+        }
+        // pay what this card displayed, not whatever state says now
+        doBuy(tok.id, BigInt(el.getAttribute('data-price')), el);
+        return;
+      }
+      const listId = el.getAttribute('data-list');
+      if (listId) {
+        const input = yoursGrid_q(listId);
+        const wei = input ? parseEth(input.value) : null;
+        if (wei === null) {
+          log('bad price — use plain ETH, like 0.05', 'err');
+          return;
+        }
+        if (wei > 79228162514264337593543950335n) { // uint96 ceiling
+          log('price too high for the listing slot.', 'err');
+          return;
+        }
+        doList(Number(listId), wei, el);
+        return;
+      }
+      const delistId = el.getAttribute('data-delist');
+      if (delistId) {
+        doDelist(Number(delistId), el);
+        return;
+      }
+      const viewId = el.getAttribute('data-view');
+      if (viewId) openView(Number(viewId));
+    }
+
+    function yoursGrid_q(tokenId) {
+      return document.querySelector('input[data-price-for="' + tokenId + '"]');
+    }
+
+    function openView(artId) {
+      viewArt = artId;
+      $('cvImg').src = 'nft/art/' + viewArt + '.webp';
+      $('cvImg').alt = 'Smokin Frog Hotbox #' + viewArt;
+      $('cvName').textContent = 'HOTBOX #' + viewArt;
+      refreshCards();
+      view.showModal();
+    }
+
     // ---- wiring ----
     buildGrid();
     refreshCards();
@@ -1805,14 +2119,13 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       const mintId = ev.target.getAttribute && ev.target.getAttribute('data-mint');
       if (mintId) return doMint(Number(mintId), ev.target);
       const viewId = ev.target.getAttribute && ev.target.getAttribute('data-view');
-      if (viewId) {
-        viewArt = Number(viewId);
-        $('cvImg').src = 'nft/art/' + viewArt + '.webp';
-        $('cvImg').alt = 'Smokin Frog Hotbox #' + viewArt;
-        $('cvName').textContent = 'HOTBOX #' + viewArt;
-        refreshCards();
-        view.showModal();
-      }
+      if (viewId) openView(Number(viewId));
+    });
+    $('swapGrid').addEventListener('click', marketClick);
+    $('yoursGrid').addEventListener('click', marketClick);
+    $('yoursGrid').addEventListener('input', (ev) => {
+      const id = ev.target.getAttribute && ev.target.getAttribute('data-price-for');
+      if (id) priceDrafts[id] = ev.target.value;
     });
     $('cvMint').addEventListener('click', (ev) => doMint(viewArt, ev.target));
     view.addEventListener('click', (ev) => { if (ev.target === view) view.close(); });
@@ -1824,9 +2137,10 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
         'hangar contract: <a href="' + HANGAR.EXPLORER + '/address/' + HANGAR.CONTRACT + '" target="_blank" rel="noopener">' + HANGAR.CONTRACT + '</a>' +
         ' — verify it yourself. this is the NFT contract, <b>NOT</b> the $SFROG token CA; that one still drops at T-0 on official comms only. mints are irreversible.';
       loadState();
-      setInterval(loadState, 30000);
+      loadTokens();
+      setInterval(() => { loadState(); loadTokens(); }, 30000);
       document.addEventListener('visibilitychange', () => {
-        if (!document.hidden) loadState();
+        if (!document.hidden) { loadState(); loadTokens(); }
       });
     }
   })();

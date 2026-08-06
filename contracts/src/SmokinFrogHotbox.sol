@@ -11,10 +11,13 @@ import {Strings} from "openzeppelin-contracts/contracts/utils/Strings.sol";
 /// @notice Open-edition NFT collection on Robinhood Chain. Each of the `artCount`
 ///         artworks starts at 0.01 ETH and its price rises 5% after every mint of
 ///         that same artwork. Sale proceeds are forwarded to `payout` on each mint.
+///         Includes a built-in secondary market: any token owner can list at their
+///         own price; buys pay the seller minus the 5% royalty, in the same tx.
 contract SmokinFrogHotbox is ERC721, ERC2981, Ownable, ReentrancyGuard {
     using Strings for uint256;
 
     uint256 public constant BASE_PRICE = 0.01 ether;
+    uint96 public constant ROYALTY_BPS = 500; // 5%, mirrored in ERC2981
 
     uint256 public artCount;
     uint256 public totalMinted;
@@ -28,6 +31,13 @@ contract SmokinFrogHotbox is ERC721, ERC2981, Ownable, ReentrancyGuard {
     /// tokenId => artId
     mapping(uint256 => uint256) public artOf;
 
+    struct Listing {
+        address seller;
+        uint96 price;
+    }
+    /// tokenId => active listing (seller == 0 means not listed)
+    mapping(uint256 => Listing) public listingOf;
+
     event Minted(
         address indexed minter,
         uint256 indexed artId,
@@ -39,6 +49,15 @@ contract SmokinFrogHotbox is ERC721, ERC2981, Ownable, ReentrancyGuard {
     event PayoutChanged(address newPayout);
     event ArtsAdded(uint256 newArtCount);
     event PriceSet(uint256 indexed artId, uint256 newPrice);
+    event Listed(uint256 indexed tokenId, address indexed seller, uint256 price);
+    event Delisted(uint256 indexed tokenId, address indexed seller);
+    event Bought(
+        uint256 indexed tokenId,
+        address indexed buyer,
+        address indexed seller,
+        uint256 price,
+        uint256 royalty
+    );
 
     constructor(uint256 artCount_, string memory baseURI_, address payout_)
         ERC721("Smokin Frog Hotbox", "SFROGNFT")
@@ -49,7 +68,7 @@ contract SmokinFrogHotbox is ERC721, ERC2981, Ownable, ReentrancyGuard {
         artCount = artCount_;
         baseURI = baseURI_;
         payout = payout_;
-        _setDefaultRoyalty(payout_, 500); // 5% secondary royalty where honored
+        _setDefaultRoyalty(payout_, ROYALTY_BPS);
     }
 
     // ---------------------------------------------------------------- minting
@@ -83,6 +102,59 @@ contract SmokinFrogHotbox is ERC721, ERC2981, Ownable, ReentrancyGuard {
         emit Minted(msg.sender, artId, tokenId, price, nextPrice);
     }
 
+    // --------------------------------------------------------- secondary market
+
+    /// @notice List a token you own for sale at your own price. Listing again
+    ///         overwrites the previous price. Any transfer cancels the listing.
+    function list(uint256 tokenId, uint96 price) external {
+        require(ownerOf(tokenId) == msg.sender, "not yours");
+        require(price > 0, "zero price");
+        listingOf[tokenId] = Listing(msg.sender, price);
+        emit Listed(tokenId, msg.sender, price);
+    }
+
+    /// @notice Cancel your listing.
+    function delist(uint256 tokenId) external {
+        require(ownerOf(tokenId) == msg.sender, "not yours");
+        require(listingOf[tokenId].seller != address(0), "not listed");
+        delete listingOf[tokenId];
+        emit Delisted(tokenId, msg.sender);
+    }
+
+    /// @notice Buy a listed token. Pays the seller price minus the 5% royalty
+    ///         (which goes to `payout`); any excess msg.value is refunded.
+    function buy(uint256 tokenId) external payable nonReentrant {
+        Listing memory l = listingOf[tokenId];
+        require(l.seller != address(0), "not listed");
+        require(ownerOf(tokenId) == l.seller, "stale listing");
+        require(msg.sender != l.seller, "own token");
+        require(msg.value >= l.price, "underpaid");
+
+        delete listingOf[tokenId];
+        uint256 royalty = (uint256(l.price) * ROYALTY_BPS) / 10000;
+        uint256 sellerCut = l.price - royalty;
+
+        _safeTransfer(l.seller, msg.sender, tokenId, "");
+
+        (bool paidRoyalty,) = payout.call{value: royalty}("");
+        require(paidRoyalty, "royalty failed");
+        (bool paidSeller,) = l.seller.call{value: sellerCut}("");
+        require(paidSeller, "seller pay failed");
+        uint256 excess = msg.value - l.price;
+        if (excess > 0) {
+            (bool refunded,) = msg.sender.call{value: excess}("");
+            require(refunded, "refund failed");
+        }
+
+        emit Bought(tokenId, msg.sender, l.seller, l.price, royalty);
+    }
+
+    /// @dev Any ownership change (sale, transfer) invalidates the listing.
+    function _update(address to, uint256 tokenId, address auth) internal override returns (address) {
+        delete listingOf[tokenId];
+        return super._update(to, tokenId, auth);
+    }
+
     // ------------------------------------------------------------------ views
 
     /// @notice Current mint price of artwork `artId`.
@@ -99,6 +171,29 @@ contract SmokinFrogHotbox is ERC721, ERC2981, Ownable, ReentrancyGuard {
         for (uint256 i = 0; i < n; ++i) {
             prices[i] = priceOf(i + 1);
             minted[i] = mintedOf[i + 1];
+        }
+    }
+
+    /// @notice Paginated token board for the site: art, owner and listing price
+    ///         (0 = not listed) for tokenIds [start, start+count). TokenIds are
+    ///         1-based and dense up to totalMinted.
+    function getTokens(uint256 start, uint256 count)
+        external
+        view
+        returns (uint256[] memory artIds, address[] memory owners, uint256[] memory listPrices)
+    {
+        if (start == 0) start = 1;
+        uint256 end = count == 0 ? 0 : start + count - 1;
+        if (end > totalMinted) end = totalMinted;
+        uint256 n = end >= start ? end - start + 1 : 0;
+        artIds = new uint256[](n);
+        owners = new address[](n);
+        listPrices = new uint256[](n);
+        for (uint256 i = 0; i < n; ++i) {
+            uint256 t = start + i;
+            artIds[i] = artOf[t];
+            owners[i] = _ownerOf(t);
+            listPrices[i] = listingOf[t].price;
         }
     }
 

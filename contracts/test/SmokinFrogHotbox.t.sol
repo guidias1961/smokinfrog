@@ -48,6 +48,46 @@ contract PayoutRejector {
     // rejects all ETH
 }
 
+/// Buyer that re-enters buy() from the ERC721 receive hook.
+contract BuyReenterer is IERC721Receiver {
+    SmokinFrogHotbox public nft;
+    bool public attack;
+
+    constructor(SmokinFrogHotbox nft_) {
+        nft = nft_;
+    }
+
+    function doBuy(uint256 tokenId) external payable {
+        attack = true;
+        nft.buy{value: msg.value}(tokenId);
+    }
+
+    function onERC721Received(address, address, uint256 tokenId, bytes calldata) external returns (bytes4) {
+        if (attack) {
+            attack = false;
+            nft.buy{value: 1 ether}(tokenId); // re-entry attempt mid-buy
+        }
+        return IERC721Receiver.onERC721Received.selector;
+    }
+
+    receive() external payable {}
+}
+
+/// Seller that refuses the sale proceeds (no receive function).
+contract SellerRejector is IERC721Receiver {
+    function doMint(SmokinFrogHotbox nft, uint256 artId) external payable {
+        nft.mint{value: msg.value}(artId);
+    }
+
+    function doList(SmokinFrogHotbox nft, uint256 tokenId, uint96 price) external {
+        nft.list(tokenId, price);
+    }
+
+    function onERC721Received(address, address, uint256, bytes calldata) external pure returns (bytes4) {
+        return IERC721Receiver.onERC721Received.selector;
+    }
+}
+
 contract Selfdestructor {
     constructor() payable {}
 
@@ -391,6 +431,198 @@ contract SmokinFrogHotboxTest is Test {
         vm.expectRevert(bytes("zero price"));
         nft.setPrice(1, 0);
         vm.stopPrank();
+    }
+
+    // ------------------------------------------------------- secondary market
+
+    function _mintTo(address who, uint256 artId) internal returns (uint256 tokenId) {
+        uint256 price = nft.priceOf(artId); // read before prank — the inner call would consume it
+        vm.prank(who);
+        tokenId = nft.mint{value: price}(artId);
+    }
+
+    function test_listAndBuyHappyPath() public {
+        uint256 t = _mintTo(alice, 1);
+        vm.prank(alice);
+        nft.list(t, 2 ether);
+        (address seller, uint96 lp) = nft.listingOf(t);
+        assertEq(seller, alice);
+        assertEq(lp, 2 ether);
+
+        uint256 aliceBefore = alice.balance;
+        uint256 payoutBefore = payout.balance;
+        vm.prank(bob);
+        nft.buy{value: 2 ether}(t);
+
+        assertEq(nft.ownerOf(t), bob);
+        assertEq(alice.balance - aliceBefore, 1.9 ether);   // 95%
+        assertEq(payout.balance - payoutBefore, 0.1 ether); // 5% royalty
+        (seller, lp) = nft.listingOf(t);
+        assertEq(seller, address(0)); // listing consumed
+        assertEq(lp, 0);
+        assertEq(address(nft).balance, 0);
+    }
+
+    function test_listRequiresOwnerAndNonZeroPrice() public {
+        uint256 t = _mintTo(alice, 1);
+        vm.prank(bob);
+        vm.expectRevert(); // ERC721 revert via ownerOf mismatch path
+        nft.list(t, 1 ether);
+        vm.prank(alice);
+        vm.expectRevert(bytes("zero price"));
+        nft.list(t, 0);
+        vm.prank(alice);
+        vm.expectRevert(); // nonexistent token
+        nft.list(999, 1 ether);
+    }
+
+    function test_relistOverwritesPrice() public {
+        uint256 t = _mintTo(alice, 1);
+        vm.startPrank(alice);
+        nft.list(t, 1 ether);
+        nft.list(t, 3 ether);
+        vm.stopPrank();
+        (, uint96 lp) = nft.listingOf(t);
+        assertEq(lp, 3 ether);
+    }
+
+    function test_delist() public {
+        uint256 t = _mintTo(alice, 1);
+        vm.prank(alice);
+        vm.expectRevert(bytes("not listed"));
+        nft.delist(t);
+        vm.prank(alice);
+        nft.list(t, 1 ether);
+        vm.prank(bob);
+        vm.expectRevert(bytes("not yours"));
+        nft.delist(t);
+        vm.prank(alice);
+        nft.delist(t);
+        (address seller, uint96 lp) = nft.listingOf(t);
+        assertEq(seller, address(0));
+        assertEq(lp, 0);
+        vm.prank(bob);
+        vm.expectRevert(bytes("not listed"));
+        nft.buy{value: 1 ether}(t);
+    }
+
+    function test_buyGuards() public {
+        uint256 t = _mintTo(alice, 1);
+        vm.prank(bob);
+        vm.expectRevert(bytes("not listed"));
+        nft.buy{value: 1 ether}(t);
+        vm.prank(alice);
+        nft.list(t, 1 ether);
+        vm.prank(alice);
+        vm.expectRevert(bytes("own token"));
+        nft.buy{value: 1 ether}(t);
+        vm.prank(bob);
+        vm.expectRevert(bytes("underpaid"));
+        nft.buy{value: 1 ether - 1}(t);
+    }
+
+    function test_buyRefundsExcess() public {
+        uint256 t = _mintTo(alice, 1);
+        vm.prank(alice);
+        nft.list(t, 1 ether);
+        uint256 bobBefore = bob.balance;
+        vm.prank(bob);
+        nft.buy{value: 5 ether}(t);
+        assertEq(bobBefore - bob.balance, 1 ether);
+        assertEq(address(nft).balance, 0);
+    }
+
+    function test_transferCancelsListing() public {
+        uint256 t = _mintTo(alice, 1);
+        vm.prank(alice);
+        nft.list(t, 1 ether);
+        vm.prank(alice);
+        nft.transferFrom(alice, bob, t);
+        (address seller, uint96 lp) = nft.listingOf(t);
+        assertEq(seller, address(0));
+        assertEq(lp, 0);
+        (,, uint256[] memory lps) = nft.getTokens(t, 1);
+        assertEq(lps[0], 0); // board agrees the listing is gone
+        address carol = makeAddr("carol");
+        vm.deal(carol, 2 ether);
+        vm.prank(carol);
+        vm.expectRevert(bytes("not listed"));
+        nft.buy{value: 1 ether}(t);
+    }
+
+    function test_buyReentrancyBlocked() public {
+        uint256 t = _mintTo(alice, 1);
+        vm.prank(alice);
+        nft.list(t, 1 ether);
+        BuyReenterer br = new BuyReenterer(nft);
+        vm.deal(address(br), 5 ether);
+        vm.expectRevert(); // inner nonReentrant revert bubbles through _safeTransfer
+        br.doBuy{value: 1 ether}(t);
+        assertEq(nft.ownerOf(t), alice); // nothing moved
+    }
+
+    function test_buySellerRejectingEthReverts() public {
+        SellerRejector sr = new SellerRejector();
+        sr.doMint{value: 0.01 ether}(nft, 1);
+        uint256 t = nft.totalMinted();
+        sr.doList(nft, t, 1 ether);
+        vm.prank(bob);
+        vm.expectRevert(bytes("seller pay failed"));
+        nft.buy{value: 1 ether}(t);
+        assertEq(nft.ownerOf(t), address(sr)); // sale fully reverted
+    }
+
+    function testFuzz_buySplitsExactly(uint96 price) public {
+        uint256 p = bound(uint256(price), 1, 1000 ether);
+        uint256 t = _mintTo(alice, 8);
+        vm.prank(alice);
+        nft.list(t, uint96(p));
+        vm.deal(bob, p);
+        uint256 aliceBefore = alice.balance;
+        uint256 payoutBefore = payout.balance;
+        vm.prank(bob);
+        nft.buy{value: p}(t);
+        uint256 royalty = (p * 500) / 10000;
+        assertEq(payout.balance - payoutBefore, royalty);
+        assertEq(alice.balance - aliceBefore, p - royalty);
+        assertEq(bob.balance, 0);
+        assertEq(address(nft).balance, 0);
+    }
+
+    function test_getTokensPagination() public {
+        uint256 t1 = _mintTo(alice, 10);
+        uint256 t2 = _mintTo(bob, 20);
+        uint256 t3 = _mintTo(alice, 10);
+        vm.prank(bob);
+        nft.list(t2, 7 ether);
+
+        (uint256[] memory arts, address[] memory owners, uint256[] memory lps) = nft.getTokens(1, 500);
+        assertEq(arts.length, 3);
+        assertEq(arts[0], 10);
+        assertEq(arts[1], 20);
+        assertEq(arts[2], 10);
+        assertEq(owners[0], alice);
+        assertEq(owners[1], bob);
+        assertEq(lps[0], 0);
+        assertEq(lps[1], 7 ether);
+
+        (arts,,) = nft.getTokens(2, 1);
+        assertEq(arts.length, 1);
+        assertEq(arts[0], 20);
+
+        (arts,,) = nft.getTokens(4, 10); // past the end
+        assertEq(arts.length, 0);
+
+        (arts,,) = nft.getTokens(0, 400); // start=0 clamps to 1, no phantom row
+        assertEq(arts.length, 3);
+        assertEq(arts[0], 10);
+
+        (arts,,) = nft.getTokens(0, 0); // no underflow panic
+        assertEq(arts.length, 0);
+        (arts,,) = nft.getTokens(1, 0);
+        assertEq(arts.length, 0);
+        assertEq(t1, 1);
+        assertEq(t3, 3);
     }
 
     function test_sweepForceSentEth() public {
