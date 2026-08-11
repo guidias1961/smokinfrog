@@ -1059,6 +1059,52 @@
     from { opacity: 0; transform: translateY(10px) scale(0.985); }
     to { opacity: 1; transform: none; }
   }
+  dialog.wallet-pick {
+    position: fixed;
+    inset: 0;
+    margin: auto;
+    border: 1px solid var(--phos-dim);
+    background: #0b100b;
+    color: var(--readout);
+    padding: 0;
+    width: min(92vw, 380px);
+    box-shadow: 0 0 0 2px #060906, 0 0 80px rgba(0,0,0,0.95), 0 0 46px rgba(53,240,106,0.08);
+  }
+  dialog.wallet-pick::backdrop { background: rgba(2,4,2,0.84); backdrop-filter: blur(3px); }
+  dialog.wallet-pick[open] { animation: cvIn 0.18s ease-out; }
+  .wp-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--phos-dim);
+    color: var(--phos);
+    font-size: 12px;
+    letter-spacing: 0.12em;
+  }
+  .wp-head button { background: none; border: 0; color: var(--phos-text); cursor: pointer; font: inherit; }
+  .wp-head button:hover { color: var(--phos); }
+  .wp-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    padding: 12px 14px;
+    background: none;
+    border: 0;
+    border-bottom: 1px solid rgba(28,107,58,0.35);
+    color: var(--readout);
+    font: inherit;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: left;
+    cursor: pointer;
+  }
+  .wp-row:last-child { border-bottom: 0; }
+  .wp-row:hover { background: #0a0f0a; color: var(--phos); }
+  .wp-row img { width: 22px; height: 22px; flex: 0 0 auto; }
+  .wp-row .wp-sub { margin-left: auto; color: var(--phos-text); font-size: 10px; letter-spacing: 0.1em; }
   .cv-wrap {
     display: grid;
     grid-template-columns: minmax(0, 54fr) minmax(0, 46fr);
@@ -1457,6 +1503,11 @@
       </p>
     </div>
   </div>
+</dialog>
+
+<dialog class="wallet-pick" id="walletPick" aria-label="select wallet">
+  <div class="wp-head"><span>SELECT WALLET</span><button type="button" id="wpClose" aria-label="close">[ X ]</button></div>
+  <div id="wpList"></div>
 </dialog>
 
 <section id="venue" data-tab="launch">
@@ -2039,8 +2090,80 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       renderMarket();
     }
 
-    // ---- wallet: Reown AppKit primary, injected EIP-1193 fallback ----
+    // ---- wallet: installed (EIP-6963) wallets connect directly; Reown AppKit
+    // handles WalletConnect / QR / mobile. Routing extension wallets around the
+    // AppKit modal is deliberate — Rabby et al are most reliable on the plain
+    // eth_requestAccounts path. ----
     let appkitHooked = false;
+    let connecting = false; // guards the whole connect() flow, not just the picker dialog
+    // set by the soft-disconnect click; wallet.account alone can't tell "never
+    // connected" from "just disconnected", so this suppresses AppKit's passive
+    // session-restore until the operator explicitly reconnects
+    let userDisconnected = false;
+
+    // EIP-6963: extension wallets (Rabby, MetaMask, …) announce themselves here
+    const injected = []; // [{ info: {uuid, name, icon, rdns}, provider }]
+    window.addEventListener('eip6963:announceProvider', (ev) => {
+      const d = ev.detail;
+      if (!d || !d.provider || !d.info) return;
+      if (injected.some((w) => w.info.uuid === d.info.uuid || (d.info.rdns && w.info.rdns === d.info.rdns))) return;
+      injected.push(d);
+    });
+    window.dispatchEvent(new Event('eip6963:requestProvider'));
+
+    // wallet picker dialog — resolves {kind:'injected', wallet} | {kind:'appkit'} | null
+    const pickEl = $('walletPick');
+    const pickList = $('wpList');
+    let pickResolve = null;
+    function settlePick(val) {
+      const r = pickResolve;
+      pickResolve = null;
+      if (pickEl.open) pickEl.close();
+      if (r) r(val);
+    }
+    $('wpClose').addEventListener('click', () => settlePick(null));
+    pickEl.addEventListener('close', () => settlePick(null)); // Esc / programmatic close
+    let wpDownOnBackdrop = false;
+    pickEl.addEventListener('pointerdown', (ev) => { wpDownOnBackdrop = ev.target === pickEl; });
+    pickEl.addEventListener('click', (ev) => { if (ev.target === pickEl && wpDownOnBackdrop) settlePick(null); });
+
+    function pickRow(label, icon, sub, onPick) {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.className = 'wp-row';
+      if (icon) { const im = document.createElement('img'); im.src = icon; im.alt = ''; b.appendChild(im); }
+      b.appendChild(document.createTextNode(label));
+      const s = document.createElement('span');
+      s.className = 'wp-sub';
+      s.textContent = sub;
+      b.appendChild(s);
+      b.addEventListener('click', onPick);
+      pickList.appendChild(b);
+    }
+
+    function pickWallet() {
+      if (pickResolve) return Promise.resolve(null); // picker already up — bounce re-entry
+      const opts = injected.slice();
+      // wallet present but silent on EIP-6963 (in-app browsers, older extensions)
+      if (!opts.length && window.ethereum) opts.push({ info: { name: 'injected wallet' }, provider: window.ethereum });
+      const wcUp = !window.__sfrogAppKitFailed; // CDN still loading counts as maybe
+      if (!opts.length) {
+        if (wcUp) return Promise.resolve({ kind: 'appkit' });
+        log('no wallet found. install an EVM wallet, or open this page in your wallet\'s browser.', 'err');
+        return Promise.resolve(null);
+      }
+      if (opts.length === 1 && !wcUp) return Promise.resolve({ kind: 'injected', wallet: opts[0] });
+      return new Promise((resolve) => {
+        pickResolve = resolve;
+        pickList.innerHTML = '';
+        opts.forEach((w) => {
+          pickRow(w.info.name || 'wallet', w.info.icon || null, 'INSTALLED',
+            () => settlePick({ kind: 'injected', wallet: w }));
+        });
+        if (wcUp) pickRow('walletconnect / other', null, 'QR / MOBILE', () => settlePick({ kind: 'appkit' }));
+        pickEl.showModal(); // stacks above the crate card if that dialog is open
+      });
+    }
 
     // wait for the AppKit module bridge to come up (or declare failure)
     function appkitReady() {
@@ -2080,6 +2203,11 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       appkitHooked = true;
       try {
         sf.subscribeAccount(async () => {
+          // AppKit's own state churn (session restore, relay reconnects, …)
+          // fires this at any time — never let it clobber a live injected
+          // (Rabby/MetaMask) session the operator connected separately, and
+          // never let it resurrect a session the operator just disconnected
+          if (userDisconnected || (wallet.account && !wallet.viaAppKit)) return;
           const addr = sf.getAddress();
           wallet.account = addr || null;
           wallet.provider = sf.getProvider() || wallet.provider;
@@ -2121,13 +2249,13 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
           return false;
         };
         // release pending if the operator dismisses the modal unconnected; the
-        // 400ms recheck lets a just-completed connection's address propagate
-        // before we treat a modal-close as a dismissal
+        // recheck window lets a just-approved connection (wallet popups land
+        // after the modal closes) propagate before we call it a dismissal
         try {
           sf.subscribeState((st) => {
             if (st && st.open) { sawOpen = true; return; }
             if (sawOpen && !sf.getAddress()) {
-              setTimeout(() => { if (!done && !sf.getAddress()) finish(false); }, 400);
+              setTimeout(() => { if (!done && !sf.getAddress()) finish(false); }, 1500);
             }
           });
         } catch (_) {}
@@ -2139,15 +2267,19 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       });
     }
 
-    // injected wallet fallback if the AppKit CDN never loads
+    // put an injected wallet on chain 4663; false (never a throw) if it won't go,
+    // so a declined switch leaves the operator linked in the wrong-chain state
     async function ensureChainInjected(provider) {
-      const cid = await provider.request({ method: 'eth_chainId' });
-      if (cid === HANGAR.CHAIN_ID_HEX) return true;
+      try {
+        if (chainIdToNum(await provider.request({ method: 'eth_chainId' })) === 4663) return true;
+      } catch (_) {}
       try {
         await provider.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: HANGAR.CHAIN_ID_HEX }] });
-        return true;
       } catch (e) {
-        if (e && (e.code === 4902 || (e.data && e.data.originalError && e.data.originalError.code === 4902))) {
+        if (e && e.code === 4001) return false; // operator declined — don't pile an add-chain prompt on top
+        // unknown-chain errors are NOT reliably 4902 (Rabby and others use their
+        // own codes), so any other switch failure gets the add-chain attempt
+        try {
           await provider.request({
             method: 'wallet_addEthereumChain',
             params: [{
@@ -2158,14 +2290,14 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
               blockExplorerUrls: [HANGAR.EXPLORER]
             }]
           });
-          return (await provider.request({ method: 'eth_chainId' })) === HANGAR.CHAIN_ID_HEX;
-        }
-        throw e;
+        } catch (_) { return false; }
       }
+      try { return chainIdToNum(await provider.request({ method: 'eth_chainId' })) === 4663; }
+      catch (_) { return false; }
     }
 
-    async function connectInjected() {
-      const provider = window.ethereum;
+    async function connectInjected(pick) {
+      const provider = (pick && pick.provider) || window.ethereum;
       if (!provider) {
         log('no wallet found. install an EVM wallet, or open this page in your wallet\'s browser.', 'err');
         return false;
@@ -2178,8 +2310,20 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       wallet.chainOk = await ensureChainInjected(provider);
       if (provider.on && !provider._hangarHooked) {
         provider._hangarHooked = true;
-        provider.on('accountsChanged', (acc) => { wallet.account = acc && acc[0] ? acc[0] : null; paintWallet(); loadTokens(); });
-        provider.on('chainChanged', (cid) => { wallet.chainOk = cid === HANGAR.CHAIN_ID_HEX; paintWallet(); });
+        // a provider keeps these hooks for life once picked, so a switch to a
+        // different wallet leaves the old one still listening — ignore events
+        // from anything that isn't the currently active provider
+        provider.on('accountsChanged', (acc) => {
+          if (wallet.provider !== provider) return;
+          wallet.account = acc && acc[0] ? acc[0] : null;
+          paintWallet();
+          loadTokens();
+        });
+        provider.on('chainChanged', (cid) => {
+          if (wallet.provider !== provider) return;
+          wallet.chainOk = chainIdToNum(cid) === 4663;
+          paintWallet();
+        });
       }
       return !!wallet.account;
     }
@@ -2201,9 +2345,27 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     }
 
     async function connect() {
+      if (connecting) return null; // a connect flow is already in flight — bounce re-entry
+      connecting = true;
       try {
-        const sf = await appkitReady();
-        const ok = sf ? await connectAppKit(sf) : await connectInjected();
+        const choice = await pickWallet();
+        if (!choice) { paintWallet(); return null; }
+        userDisconnected = false; // a deliberate pick re-enables AppKit session adoption
+        // (not set any earlier — cancelling the picker must NOT clear it,
+        // or a disconnect followed by an abandoned reconnect attempt would
+        // reopen the window for a backgrounded AppKit session to resurrect)
+        let ok = false;
+        if (choice.kind === 'appkit') {
+          const sf = await appkitReady();
+          if (!sf) {
+            log('walletconnect bridge unavailable — pick an installed wallet instead.', 'err');
+            paintWallet();
+            return null;
+          }
+          ok = await connectAppKit(sf);
+        } else {
+          ok = await connectInjected(choice.wallet);
+        }
         if (!ok) { paintWallet(); return null; }
         await readChainOk();
         paintWallet();
@@ -2215,6 +2377,8 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
         if (e && e.code === 4001) log('link aborted by operator.');
         else log('link failed: ' + (e.message || e), 'err');
         return null;
+      } finally {
+        connecting = false;
       }
     }
 
@@ -2246,7 +2410,7 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
       if (!sf) return;
       hookAppKit(sf);
       const addr = sf.getAddress();
-      if (addr && !wallet.account) {
+      if (addr && !wallet.account && !userDisconnected) {
         wallet.account = addr;
         wallet.provider = sf.getProvider() || wallet.provider;
         wallet.viaAppKit = true;
@@ -2555,15 +2719,32 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
     });
     applyRarFilter();
 
-    // connected chip opens AppKit's account view (switch network / disconnect);
-    // otherwise it starts a connection.
+    // connected chip: ignored entirely while a tx is pending — checked FIRST,
+    // ahead of even the AppKit account-view branch, because armWallet/runTx
+    // re-read wallet.provider/account live and a session change landing mid-
+    // flight (including one triggered from AppKit's own native Account view)
+    // could sign/send from a null or just-swapped identity. Otherwise:
+    // AppKit-linked wallets get AppKit's account view (switch network /
+    // disconnect); a wrong-chain injected wallet gets a switch prompt; a
+    // right-chain injected wallet forgets the local session (EIP-1193 has no
+    // standard disconnect) so the operator can relink via the picker;
+    // otherwise the click starts a connection.
     connectBtn.addEventListener('click', () => {
       if (wallet.account) {
+        if (pending) return;
         if (wallet.viaAppKit && window.__sfrogAppKit) {
-          try { window.__sfrogAppKit.open({ view: 'Account' }); return; } catch (_) {}
+          try { window.__sfrogAppKit.open({ view: 'Account' }); } catch (_) {}
+          return;
         }
         if (!wallet.chainOk) { armWallet(); return; }
-        return; // injected wallet, connected on the right chain — nothing to do
+        userDisconnected = true;
+        wallet.account = null;
+        wallet.provider = null;
+        wallet.viaAppKit = false;
+        wallet.chainOk = false;
+        try { window.__sfrogAppKit && window.__sfrogAppKit.disconnect(); } catch (_) {}
+        paintWallet();
+        return;
       }
       connect();
     });
@@ -2620,10 +2801,14 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
   const RPC = 'https://rpc.mainnet.chain.robinhood.com';
   const EXPLORER = 'https://robinhoodchain.blockscout.com';
 
+  // NO ?bundle here: bundling each package separately gives appkit and the
+  // adapter private copies of the @reown/appkit-controllers singletons, so the
+  // modal and the adapter mutate different state and connections never land.
+  // Unbundled, shared deps resolve to identical esm.sh URLs = true singletons.
   const load = async () => {
-    const { createAppKit } = await import(`https://esm.sh/@reown/appkit@${V}?bundle`);
-    const { EthersAdapter } = await import(`https://esm.sh/@reown/appkit-adapter-ethers@${V}?bundle`);
-    const { defineChain } = await import(`https://esm.sh/@reown/appkit/networks?bundle`);
+    const { createAppKit } = await import(`https://esm.sh/@reown/appkit@${V}`);
+    const { EthersAdapter } = await import(`https://esm.sh/@reown/appkit-adapter-ethers@${V}`);
+    const { defineChain } = await import(`https://esm.sh/@reown/appkit@${V}/networks`);
     return { createAppKit, EthersAdapter, defineChain };
   };
 
@@ -2657,6 +2842,16 @@ SCAN: vibes ........... <span class="ok">IMMACULATE</span>
         icons: [location.origin + '/favicon.png']
       },
       features: { analytics: false, email: false, socials: [], onramp: false, swaps: false },
+      // AppKit's own modal auto-detects injected/EIP-6963 wallets (Rabby,
+      // MetaMask, Coinbase…) and offers to connect them itself — racing our
+      // page's separate EIP-6963 picker for the SAME provider. Two concurrent
+      // eth_requestAccounts calls to Rabby is exactly what makes it reply
+      // "Connection declined — a previous request is still active." AppKit
+      // is only meant to handle WalletConnect/QR here, so its own injected
+      // connectors are switched off; enableWalletConnect stays default true.
+      enableInjected: false,
+      enableEIP6963: false,
+      enableCoinbase: false,
       themeMode: 'dark',
       themeVariables: {
         '--w3m-accent': '#CDF505',
